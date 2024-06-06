@@ -21,6 +21,11 @@ void Driver::Reset()
     Init();
 }
 
+int Driver::Result()
+{
+    return 0;
+}
+
 IDriver& TheDriver()
 {
     return theDriver;

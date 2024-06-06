@@ -11,4 +11,5 @@ class Driver final
 public:
     Driver();
     ~Driver();
+    int Result() override;
 };

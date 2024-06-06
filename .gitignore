@@ -1,7 +1,7 @@
 *.filters
 *.iml
 *.user
-Example*.java
+.DS_Store
 .vs/
 android/.gradle/
 android/.idea/
@@ -21,5 +21,7 @@ android/gradlew
 android/gradlew.bat
 android/local.properties
 build/
+Example*.java
 Win32/
 x64/
+xcuserdata/

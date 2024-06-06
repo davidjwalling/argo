@@ -15,7 +15,9 @@ android/app/.gitignore
 android/app/proguard-rules.pro
 android/gradle/
 android/.gitignore
+android/build.gradle.kts
 android/gradle.properties
+android/gradlew
 android/gradlew.bat
 android/local.properties
 build/

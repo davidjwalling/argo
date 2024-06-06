@@ -1,0 +1,54 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) argo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/argo",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb"
+        },
+        {
+            "name": "(gdb) testargo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/testargo",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb"
+        },
+        {
+            "name": "(lldb) argo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/argo",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) testargo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/testargo",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}
+

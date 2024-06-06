@@ -24,6 +24,7 @@
     <ProjectGuid>{dfc94f0f-e756-4e0a-a233-14ab38d064bd}</ProjectGuid>
     <RootNamespace>libargo</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>libargo</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

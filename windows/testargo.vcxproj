@@ -24,6 +24,7 @@
     <ProjectGuid>{d9200abd-c9e1-4a1e-bc12-84a62d180551}</ProjectGuid>
     <RootNamespace>testargo</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>testargo</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

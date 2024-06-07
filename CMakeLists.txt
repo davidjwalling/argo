@@ -28,7 +28,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 set (LIB_SRCS
+    channel.cpp
     driver.cpp
+    json.cpp
+    logger.cpp
+    path.cpp
+    socket.cpp
+    udpchannel.cpp
 )
 
 set (PUB_HDRS

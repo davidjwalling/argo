@@ -1,5 +1,6 @@
 *.filters
 *.iml
+*.log
 *.user
 .DS_Store
 .vs/

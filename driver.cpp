@@ -88,6 +88,7 @@ namespace cond {
 
             //  Shutdown
 
+            stopping,
             finalize,
             servicestop
         };
@@ -162,6 +163,7 @@ namespace cond {
 
             //  Shutdown
 
+            constexpr const char* stopping = "Exiting main loop";
             constexpr const char* servicestop = "Service stopping";
             constexpr const char* finalize = "Finalization completed";
         }
@@ -1281,8 +1283,8 @@ Channel* Driver::Dequeue()
 
 void Driver::ServiceChannel()
 {
-    _udpChannel4.Service();
-    _udpChannel6.Service();
+    //_udpChannel4.Service();
+    //_udpChannel6.Service();
     Channel* channel = Dequeue();
     if (channel) {
         channel->Service();
@@ -1299,6 +1301,7 @@ void Driver::Mainline()
         GetClient();
         ServiceChannel();
     }
+    inf("I%04d %s", cond::driver::stopping, cond::driver::message::stopping);
 }
 
 void Driver::Finalize()

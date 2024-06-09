@@ -22,21 +22,13 @@ namespace channel {
     };
 }
 
-namespace hctl {
-    namespace command {
-        const char* disco = "disco";
-        const char* get = "get";
-        const char* set = "set";
-    }
-}
-
 namespace http {
     const char* day[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
     const char* month[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 }
 
 const char* ok_0 = \
-"HTTP/1.1 200 OK\r\nDate: %s\r\nServer: Ava/0.X\r\n" \
+"HTTP/1.1 200 OK\r\nDate: %s\r\nServer: Argo/0.X\r\n" \
 "Content-type: text/html\r\nContent-Length: %zd\r\n\r\n";
 
 const char* ok_1 = \
@@ -48,8 +40,8 @@ const char* ok_1 = \
 ".titl{position:fixed;top:0;}" \
 ".copy{background-color:#2b2c30;color:#fafaf0;position:fixed;bottom:0;width:50%;}" \
 ".rlbl{right:0;text-align:right;}" \
-"</style><title>Ava 0.X</title></head><body>" \
-"<div class=\"titl\">Ava 0.X Experimental</div>" \
+"</style><title>Argo 0.X</title></head><body>" \
+"<div class=\"titl\">Argo 0.X Experimental</div>" \
 "<div class=\"copy\">&copy; 2010 David J. Walling</div>" \
 "<div class=\"copy rlbl\">";
 
@@ -110,11 +102,6 @@ void Channel::Clear()
     _resource.clear();
     _version.clear();
 
-    _target.clear();
-    _source.clear();
-    _command.clear();
-    _params.clear();
-
     _read.clear();
     _write.clear();
     _message.clear();
@@ -164,14 +151,7 @@ void Channel::NeedFirstBytes()
           || (_T == _read[0] && ((_R == _read[1] && _A == _read[2])))) {                                                                            //  TRACE
         _state = channel::state::needhttprequest;
     }
-    
-    //  HCTL might start with forwarding headers. Otherwise, an HCTL command
-    //  will be lower case or a reply starting wiht the 'at' sign.
-    
-    else if ((_lbrace == _read[0]) || (_a <= _read[0] && _z >= _read[0]) || _at == _read[0]) {
-        _state = channel::state::needhctlmessage;
-    }
-    
+
     //  If the protocol is not recognized, close the TCP connection and put the
     //  channel back into ready state.
 
@@ -308,178 +288,6 @@ void Channel::HaveHttpRequest()
     _state = channel::state::needhttprequest;
 }
 
-void Channel::NeedHctlRequest()
-{
-    //  Write as much pending output as we can. If not all pending output data
-    //  can be written immediately, service any other channel and then retry.
-
-    if (_write.size()) {
-        Write();
-        if (_write.size())
-            return;
-    }
-
-    //  With all pending output written, try to read data. If no data can be
-    //  read immediately, service any other channel and then retry.
-
-    if (_read.empty()) {
-        Read();
-        if (_read.empty())
-            return;
-    }
-    
-    //  Append data to the message until LF. Close the connection if the message
-    //  exceeds the maximum allowable length.
-
-    size_t n = _read.find(_lf);
-    if (std::string::npos == n) {
-        _message += _read;
-        _read.clear();
-        if (_message.size() > hctl::max::len::message) {
-            Close();
-        }
-    } else {
-        _message += _read.substr(0, n + 1);
-        _read.erase(0, n + 1);
-        if (_message.size() > hctl::max::len::message) {
-            Close();
-        } else {
-            _state = channel::state::havehctlmessage;
-        }
-    }
-}
-
-bool Channel::ParseHctlRequest()
-{
-    //  Clear the target and source headers, command and parameters.
-
-    _target.clear();
-    _source.clear();
-    _command.clear();
-    _params.clear();
-
-    //  Spin over leading SP, HT. Done if EOL.
-
-    char* p = &_message[0];
-
-    //  Forwarding headers are optional but exist if the first non-
-    //  white space is a left brace. If present, complete target and
-    //  source headers must be found.
-
-    if (_lbrace == *p) {
-
-        //  NUL, right brace, CR or LF ends the target.
-
-        for (++p; *p && _rbrace != *p && _cr != *p && _lf != *p; p++)
-            _target += *p;
-        if (_rbrace != *p)
-            return false;
-
-        //  Spacing may follow the target but must end with left brace.
-
-        for (++p; _sp == *p || _ht == *p; p++);
-        if (_lbrace != *p)
-            return false;
-
-        //  NUL, right brace, CR or LF ends the source.
-
-        for (++p; *p && _rbrace != *p && _cr != *p && _lf != *p; p++)
-            _source += *p;
-        if (_rbrace != *p)
-            return false;
-
-        //  Spacing may follow the source but it cannot end the message.
-
-        for (++p; _sp == *p || _ht == *p; p++);
-        if (_nul == *p || _cr == *p || _lf == *p)
-            return false;
-    }
-
-    //  The command must be lower case alpha and end with spacing or EOL.
-
-    for (; *p && _a <= *p && _z >= *p; p++)
-        _command += *p;
-    if (_command.empty())
-        return false;
-    if (*p && _sp != *p && _ht != *p && _cr != *p && _lf != *p)
-        return false;
-
-    //  Spin over spacing to either EOL or start of parameters. If there are
-    //  parameters, they must be a valid JSON object.
-
-    for (++p; _sp == *p || _ht == *p; p++);
-    if (_nul == *p || _cr == *p || _lf == *p)
-        return true;
-    if (_lbracket != *p)
-        return false;
-
-    //  If there are parameters, it must be a valid JSON object.
-
-    _params += *p;
-    int level = 1;
-    bool quote = 0;
-    for (++p; *p && _cr != *p && _lf != *p; _params += *p++) {
-        if (_dquote == *p)
-            quote = !quote;
-        else if (_lbracket == *p)
-            level++;
-        else if (_rbracket == *p) {
-            if (!quote) {
-                if (!level)
-                    return false;
-                level--;
-            }
-        }
-    }
-    return level == 0;
-}
-
-void Channel::HaveHctlRequest()
-{
-    bool ret = ParseHctlRequest();
-    _message.clear();
-    Expires(std::time(0) + channel::expires);
-    _state = channel::state::needhctlmessage;
-    if (!ret) {
-        _write += "@error {\"error\":\"invalid message\"}\n";
-        return;
-    }
-    _write = "@" + _command;
-    if (hctl::command::disco == _command) {
-        if (_params.empty()) {
-            _write += " {}\n";
-            return;
-        }
-        Json params;
-        if (!params.Parse(_params)) {
-            _write += " {\"error\":\"invalid parameters\"}\n";
-            return;
-        }
-        Path path("params");
-        const Json* json = nullptr;
-        if (!params.Get(path, &json)) {
-            _write += " {\"error\":\"missing params\"}\n";
-            return;
-        }
-        if (!json || !json->_isArray) {
-            _write += " {\"error\":\"params not an array\"}\n";
-            return;
-        }
-        _write += " {";
-        for (const Json* k = json->_first; k; k = k->_next) {
-            Path param("/configuration/device/" + k->_stringValue);
-            std::string val;
-            if (_json->Get(param, val)) {
-                _write += "\"" + k->_stringValue + "\":\"" + val + "\",";
-            }
-        }
-        if (_write.back() == ',')
-            _write.pop_back();
-        _write += "}";
-    }
-    _write += "\n";
-}
-
 void Channel::Close()
 {
     _socket.Reset();
@@ -500,12 +308,6 @@ void Channel::Service()
         break;
     case channel::state::havehttprequest:
         HaveHttpRequest();
-        break;
-    case channel::state::needhctlmessage:
-        NeedHctlRequest();
-        break;
-    case channel::state::havehctlmessage:
-        HaveHctlRequest();
         break;
     case channel::state::close:
         Close();

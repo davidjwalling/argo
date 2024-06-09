@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
+    <Text Include="..\CMakeLists.txt" />
     <None Include="..\LICENSE" />
     <None Include="..\README.md" />
   </ItemGroup>
@@ -155,9 +156,6 @@
     <ProjectReference Include="libargo.vcxproj">
       <Project>{dfc94f0f-e756-4e0a-a233-14ab38d064bd}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\CMakeLists.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

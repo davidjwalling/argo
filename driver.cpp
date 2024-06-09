@@ -307,6 +307,16 @@ void Driver::Stopping(bool stopping)
     _stopping.store(stopping, memory_order_release);
 }
 
+bool Driver::Winsock()
+{
+    return _winsock.load(memory_order_acquire);
+}
+
+void Driver::Winsock(bool winsock)
+{
+    _winsock.store(winsock, memory_order_release);
+}
+
 void Driver::Config(const char* config)
 {
     _config = config;
@@ -1191,7 +1201,7 @@ bool Driver::Initialize(int argc, char* argv[])
         AppErr(cond::driver::wsastartup);
         return false;
     }
-    _winsock = true;
+    Winsock(true);
 #endif
     Configure(argc, argv);
     _v4tcp.Port(_port);
@@ -1301,9 +1311,9 @@ void Driver::Finalize()
 
     //  Cleanup Windows Sockets resources if WSAStartup succeeded.
 
-    if (_winsock) {
+    if (Winsock()) {
         WSACleanup();
-        _winsock = false;
+        Winsock(false);
     }
 #endif
     inf("I%04d %s", cond::driver::finalize, cond::driver::message::finalize);

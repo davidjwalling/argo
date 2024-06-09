@@ -22,7 +22,7 @@ class Driver final
 {
     std::atomic<bool> _stopping;
     std::atomic<bool> _daemon;
-    bool _winsock;
+    std::atomic<bool> _winsock;
 
     uint16_t _port;
 
@@ -63,6 +63,7 @@ class Driver final
     void Init();
     void Reset();
     bool Stopping();
+    bool Winsock();
 #if defined(_WIN32)
     bool OpenServiceManager();
     void Install(const char* name);
@@ -97,6 +98,7 @@ public:
     Driver();
     ~Driver();
     void Stopping(bool stopping);
+    void Winsock(bool winsock);
 #if defined(_WIN32)
     void Handle(DWORD control);
     void Main(DWORD argc, LPSTR* argv);

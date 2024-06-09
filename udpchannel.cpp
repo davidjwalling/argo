@@ -46,8 +46,6 @@ void UdpChannel::NeedFirstBytes()
         Write();
     } else if (_read.size() < 1) {
         Read();
-    } else if ((_lbrace == _read[0]) || (_a <= _read[0] && _z >= _read[0]) || _at == _read[0]) {
-        _state = channel::state::needhctlmessage;
     } else {
         _read.clear();
     }

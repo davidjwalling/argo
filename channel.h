@@ -63,14 +63,10 @@ namespace channel {
     enum class state {
         ready = 0,
         needfirstbytes,
-
         needplaintext,
         haveplaintext,
         needhttprequest,
         havehttprequest,
-
-        needhctlmessage,
-        havehctlmessage,
         close
     };
     enum {
@@ -94,11 +90,6 @@ class Channel {
     std::string _resource;
     std::string _version;
 
-    std::string _target;
-    std::string _source;
-    std::string _command;
-    std::string _params;
-
     void NeedPlainText();
     void HavePlainText();
 
@@ -107,10 +98,6 @@ class Channel {
     void NeedHttpRequest();
     void HaveHttpRequest();
     bool ParseHttpRequest();
-
-    void NeedHctlRequest();
-    void HaveHctlRequest();
-    bool ParseHctlRequest();
 
     virtual void NeedFirstBytes();
 

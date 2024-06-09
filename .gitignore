@@ -23,6 +23,7 @@ android/gradlew.bat
 android/local.properties
 build/
 Example*.java
+prelog
 Win32/
 x64/
 xcuserdata/

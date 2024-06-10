@@ -70,7 +70,7 @@ namespace channel {
         close
     };
     enum {
-        expires = 60 // 7200 = two hours for debugging
+        expires = 7200 // 7200 = two hours for debugging
     };
 }
 

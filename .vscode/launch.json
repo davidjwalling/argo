@@ -20,7 +20,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/testargo",
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
             "environment": [],
             "externalConsole": false,
@@ -33,12 +33,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/argo",
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "miDebuggerArgs": "--init-command ${workspaceFolder}/.lldbinit"
+            "externalConsole": true,
+            "MIMode": "lldb"
         },
         {
             "name": "(lldb) testargo",
@@ -46,12 +45,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/testargo",
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "miDebuggerArgs": "--init-command ${workspaceFolder}/.lldbinit"
+            "externalConsole": true,
+            "MIMode": "lldb"
         }
     ]
 }

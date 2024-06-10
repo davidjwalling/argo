@@ -43,5 +43,7 @@ using ssize_t = int;
 #else
 #if defined(__linux__)
 using SOCKET = size_t;
+#else
+using SOCKET = int;
 #endif
 #endif

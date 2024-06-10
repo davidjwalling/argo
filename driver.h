@@ -8,6 +8,7 @@
 #include "udpchannel.h"
 
 #include <atomic>
+#include <mutex>
 #include <string>
 #include <thread>
 
@@ -20,9 +21,10 @@ namespace driver {
 class Driver final
     : public IDriver
 {
-    std::atomic<bool> _stopping;
-    std::atomic<bool> _daemon;
-    std::atomic<bool> _winsock;
+    bool _stopping;
+    bool _stopped;
+    bool _daemon;
+    bool _winsock;
 
     uint16_t _port;
 
@@ -58,6 +60,8 @@ class Driver final
     Channel _channel[driver::channels];
 
     Json _json;
+
+    std::mutex _mutexForChannels;
     std::thread _thread;
 
     void Init();

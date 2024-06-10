@@ -3,6 +3,7 @@
 #include "logger.h"
 #include "socket.h"
 
+#include <chrono>
 #include <fstream>
 #include <sstream>
 
@@ -261,6 +262,7 @@ void Driver::Init()
     //  memory when the program ends.
 
     _stopping = false;
+    _stopped = false;
     _daemon = false;
     _winsock = false;
 
@@ -301,22 +303,24 @@ void Driver::Reset()
 
 bool Driver::Stopping()
 {
-    return _stopping.load(memory_order_acquire);
+     return _stopping;
 }
 
 void Driver::Stopping(bool stopping)
 {
-    _stopping.store(stopping, memory_order_release);
+    _stopping = stopping;
 }
 
 bool Driver::Winsock()
 {
-    return _winsock.load(memory_order_acquire);
+    //return _winsock.load(memory_order_acquire);
+    return _winsock;
 }
 
 void Driver::Winsock(bool winsock)
 {
-    _winsock.store(winsock, memory_order_release);
+    //_winsock.store(winsock, memory_order_release);
+    _winsock = winsock;
 }
 
 void Driver::Config(const char* config)
@@ -1148,8 +1152,11 @@ bool Driver::GetModel()
             inf("I%04d %s", cond::driver::modelloaded, cond::driver::message::modelloaded);
             _udpChannel4.SetJson(_json);
             _udpChannel6.SetJson(_json);
-            for (auto& n : _channel) {
-                n.SetJson(_json);
+            {
+                lock_guard<mutex> lock(_mutexForChannels);
+                for (auto& c : _channel) {
+                    c.SetJson(_json);
+                }
             }
         }
     }
@@ -1232,11 +1239,14 @@ void Driver::Queue(Channel* channel)
 
 void Driver::GetClient()
 {
+    lock_guard<mutex> lock(_mutexForChannels);
     int n = 0;
     for (; n < driver::channels; n++) {
         if (_channel[n].State() == channel::state::ready) {
             SOCKET client = _v4tcp.Accept();
             if (client) {
+                int flags = fcntl(client, F_GETFL, 0);
+                fcntl(client, F_SETFL, flags | O_NONBLOCK);
                 _channel[n].SetAddressAndPortFrom(_v4tcp);
             } else {
                 client = _v6tcp.Accept();
@@ -1283,6 +1293,8 @@ Channel* Driver::Dequeue()
 
 void Driver::ServiceChannel()
 {
+    if (Stopping())
+        return;
     //_udpChannel4.Service();
     //_udpChannel6.Service();
     Channel* channel = Dequeue();
@@ -1310,6 +1322,10 @@ void Driver::Finalize()
 
     CloseAddress(_v4tcp, _udpChannel4.Sock());
     CloseAddress(_v6tcp, _udpChannel6.Sock());
+
+    for (auto &c : _channel) {
+        c.Close();
+    }
 #if defined(_WIN32)
 
     //  Cleanup Windows Sockets resources if WSAStartup succeeded.
@@ -1319,7 +1335,9 @@ void Driver::Finalize()
         Winsock(false);
     }
 #endif
+
     inf("I%04d %s", cond::driver::finalize, cond::driver::message::finalize);
+    _stopped = true;
 }
 
 void Driver::Run(int argc, char* argv[])
@@ -1367,6 +1385,9 @@ void Driver::Stop()
 
     AppErr(0);
     Stopping(true);
+    while (!_stopped) {
+        this_thread::sleep_for(chrono::milliseconds(10));
+    }
     if (_thread.joinable())
         _thread.join();
 }

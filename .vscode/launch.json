@@ -5,49 +5,53 @@
             "name": "(gdb) argo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/argo",
+            "program": "${workspaceFolder}/build/argo",
             "args": [],
-            "stopAtEntry": true,
-            "cwd": "${workspaceRoot}",
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb"
+            "MIMode": "gdb",
+            "miDebuggerArgs": "--init-command ${workspaceFolder}/.gdbinit"
         },
         {
             "name": "(gdb) testargo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/testargo",
+            "program": "${workspaceFolder}/build/testargo",
             "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceRoot}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb"
+            "MIMode": "gdb",
+            "miDebuggerArgs": "--init-command ${workspaceFolder}/.gdbinit"
         },
         {
             "name": "(lldb) argo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/argo",
+            "program": "${workspaceFolder}/build/argo",
             "args": [],
             "stopAtEntry": true,
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb"
+            "MIMode": "lldb",
+            "miDebuggerArgs": "--init-command ${workspaceFolder}/.lldbinit"
         },
         {
             "name": "(lldb) testargo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/testargo",
+            "program": "${workspaceFolder}/build/testargo",
             "args": [],
             "stopAtEntry": true,
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb"
+            "MIMode": "lldb",
+            "miDebuggerArgs": "--init-command ${workspaceFolder}/.lldbinit"
         }
     ]
 }

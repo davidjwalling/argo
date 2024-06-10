@@ -252,7 +252,7 @@ bool Channel::ParseHttpRequest()
     if (_resource.empty() || _sp != *p)
         return false;
 
-    //  The version immediatley follows and ends with CR LF.
+    //  The version immediately follows and ends with CR LF.
 
     for (++p; *p && _sp != *p && _ht != *p && _cr != *p && _lf != *p; _version += *p++);
     if (_version.empty() || _cr != *p)

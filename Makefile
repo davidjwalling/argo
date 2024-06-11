@@ -78,7 +78,7 @@ json.cpp: json.h
 	touch json.cpp
 
 logger.cpp: api.h logger.h
-	touch log.cpp
+	touch logger.cpp
 
 path.cpp: path.h
 	touch path.cpp

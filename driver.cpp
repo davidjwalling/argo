@@ -1397,6 +1397,7 @@ void Driver::Stop()
     //  error code and set the stopping indicator.
 
     AppErr(0);
+    inf("I%04d %s", cond::driver::servicestop, cond::driver::message::servicestop);
     Stopping(true);
 
     //  Wait up to 1 second for the thread finish finalization.

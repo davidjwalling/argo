@@ -1,6 +1,8 @@
 *.filters
 *.iml
 *.log
+*.o
+*.so
 *.user
 .DS_Store
 .vs/
@@ -21,9 +23,11 @@ android/gradle.properties
 android/gradlew
 android/gradlew.bat
 android/local.properties
+argo
 build/
 Example*.java
 prelog
+testargo
 Win32/
 x64/
 xcuserdata/

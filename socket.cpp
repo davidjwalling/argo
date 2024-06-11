@@ -1,7 +1,5 @@
-//  Copyright 2010 David J. Walling. All rights reserved.
-
-#include "socket.h"
 #include "logger.h"
+#include "socket.h"
 
 namespace cond {
     namespace socket {

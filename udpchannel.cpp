@@ -1,6 +1,3 @@
-//  Copyright 2010 David J. Walling. All rights reserved.
-
-#include "ascii.h"
 #include "udpchannel.h"
 
 namespace udpchannel {

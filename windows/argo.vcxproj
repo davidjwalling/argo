@@ -148,8 +148,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
+    <None Include="..\WINDOWS.md" />
     <Text Include="..\CMakeLists.txt" />
+    <None Include="..\ANDROID.md" />
+    <None Include="..\IOS.md" />
     <None Include="..\LICENSE" />
+    <None Include="..\LINUX.md" />
+    <None Include="..\MACOS.md" />
     <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>

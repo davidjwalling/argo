@@ -1,7 +1,6 @@
 #include "channel.h"
 #include "driver.h"
 #include "logger.h"
-#include "socket.h"
 
 #include <chrono>
 #include <fstream>

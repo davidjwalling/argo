@@ -1,8 +1,5 @@
-//  Copyright 2010 David J. Walling. All rights reserved.
-
 #include "ascii.h"
 #include "channel.h"
-#include "logger.h"
 
 #include <map>
 
@@ -264,8 +261,8 @@ void Channel::HaveHttpRequest()
 {
     ParseHttpRequest();
 
-    std::time_t t = std::time(0);
-    std::tm m{ 0 };
+    time_t t = time(0);
+    tm m{ 0 };
     memcpy(&m, gmtime(&t), sizeof(m));
     char date[30] = { 0 };
     sprintf(date, "%s, %u %s %u %02u:%02u:%02u GMT",
@@ -284,7 +281,7 @@ void Channel::HaveHttpRequest()
     _write = hdr;
     _write += body;
 
-    Expires(std::time(0) + channel::expires);
+    Expires(time(0) + channel::expires);
     _state = channel::state::needhttprequest;
 }
 

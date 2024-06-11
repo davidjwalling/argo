@@ -18,6 +18,7 @@
 #include <unistd.h> // fork
 #endif
 #include <cstdint> // uint16_t
+#include <time.h> // time, gmtime
 
 enum {
     cond_base_socket = 300,

@@ -1,5 +1,3 @@
-//  Copyright 2010 David J. Walling. All rights reserved.
-
 #include "json.h"
 
 Json::Json()

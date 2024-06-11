@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
+    <None Include="..\Makefile" />
     <None Include="..\WINDOWS.md" />
     <Text Include="..\CMakeLists.txt" />
     <None Include="..\ANDROID.md" />

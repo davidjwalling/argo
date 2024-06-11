@@ -1,14 +1,15 @@
-# Argo on Linux
+# Argo on Linux (Debian, Ubuntu, LMDE)
 ## Update Prerequisites
-### Debian, Ubuntu, Mint
 ```
 $ sudo apt update
 $ sudo apt upgrade
-$ sudo apt install build-essential
+$ sudo apt install build-essential git cmake net-tools
 $ sudo apt autoremove
-$ sudo snap install code
+$ sudo snap install --classic code
 ```
 ## Configure Tools
+### Virtual Box Guest Additions
+If using Virtual Box, install its Guest Additions to better facilitate UI scaling.
 ### ~/.vimrc
 Create or edit the ~/.vimrc file so that tabs are expanded to four spaces when editing source files.  
 Use "vi -u NONE Makeflie" when editting Makefile to preserve its tabs.

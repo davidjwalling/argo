@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/argo",
-            "args": [],
+            "args": ["service"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

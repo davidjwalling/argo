@@ -89,9 +89,9 @@ namespace cond {
 
             //  Shutdown
 
+            servicestop,
             stopping,
-            finalize,
-            servicestop
+            finalize
         };
         namespace message {
             constexpr const char* servicestart = "Service started";
@@ -164,8 +164,8 @@ namespace cond {
 
             //  Shutdown
 
-            constexpr const char* stopping = "Exiting main loop";
             constexpr const char* servicestop = "Service stopping";
+            constexpr const char* stopping = "Exiting main loop";
             constexpr const char* finalize = "Finalization completed";
         }
     }
@@ -283,8 +283,6 @@ void Driver::Init()
     _usage.clear();
 
 #if defined(_WIN32)
-    //  Windows service management variables.
-
     _hscm = nullptr;
     _lock = nullptr;
     _handle = 0;
@@ -297,8 +295,6 @@ void Driver::Init()
 
 void Driver::Reset()
 {
-    //  Initialize members to default values.
-
     Init();
 }
 
@@ -455,8 +451,9 @@ void Driver::Main(DWORD argc, LPSTR* argv)
     //  service thread. Run will exit when Stopping(true) is called in the
     //  Driver::Handle routine above.
 
-    if (argc)
+    if (argc) {
         _name = argv[0];
+    }
     inf("I%04d %s (%s)", cond::driver::servicestart, cond::driver::message::servicestart, _name.c_str());
     Run(argc, argv);
     inf("I%04d %s (%s)", cond::driver::servicestop, cond::driver::message::servicestop, _name.c_str());
@@ -691,9 +688,10 @@ void Driver::CloseServiceManager()
 #if defined(_WIN32)
 BOOL WINAPI ServiceHandleTerm(DWORD fdwCtrlType)
 {
-    // The Service method sets ServiceHandleTerm as the closure event handler.
-    // We are on the main thread here. We cannot log because theLogger has been
-    // destructed. We set _stopping to true so the service thread will exit.
+    //  The Service method sets ServiceHandleTerm as the closure event handler.
+    //  We are on the main thread here. But, we cannot log because theLogger has
+    //  already been destructed. We set _stopping to true so the service thread
+    //  will exit Mainline and perform finalization.
 
     switch (fdwCtrlType) {
     case CTRL_C_EVENT:
@@ -707,15 +705,17 @@ BOOL WINAPI ServiceHandleTerm(DWORD fdwCtrlType)
     }
 }
 #else
-void ServiceHandleSig(int sig)
-{
-    signal(sig, ServiceHandleSig);
-}
-
 void ServiceHandleTerm(int sig)
 {
+    //  We are on the child thread. We log that we are stopping, set the
+    //  stopping indicator and restore the default handler, then exit.
+    //  Control will return to the child thread at the point it was
+    //  interrupted and exit Mainline to perform finalization because the
+    //  stopping indicator is true.
+
+    inf("I%04d %s", cond::driver::servicestop, cond::driver::message::servicestop);
     theDriver.Stopping(true);
-    signal(sig, ServiceHandleSig);
+    signal(sig, SIG_DFL);
 }
 #endif
 
@@ -743,7 +743,7 @@ bool Driver::Service(int argc, char* argv[])
                 }
             } else {
                 LoggerConsole(false);
-                _daemon = true;
+                Daemon(true);
             }
             return false;
         }
@@ -772,14 +772,11 @@ bool Driver::Service(int argc, char* argv[])
     }
     SetConsoleCtrlHandler(ServiceHandleTerm, TRUE);
 #else
-    int rc = 0;
-    int nullFile = 0;
-    sigset_t set = { 0 };
-    struct sigaction act = { 0 };
+    struct sigaction act;
     memset(&act, 0, sizeof(act));
     act.sa_handler = SIG_IGN;
     act.sa_flags = 0;
-    rc = sigaction(SIGPIPE, &act, NULL);
+    int rc = sigaction(SIGPIPE, &act, NULL);
     if (rc) {
         OsErr(errno);
         AppErr(cond::driver::pipe1);
@@ -806,7 +803,7 @@ bool Driver::Service(int argc, char* argv[])
         }
         return true;
     }
-    _daemon = true;
+    Daemon(true);
     rc = fork();
     if (-1 == rc) {
         OsErr(errno);
@@ -823,6 +820,7 @@ bool Driver::Service(int argc, char* argv[])
         err("E%04d %s (%d)", cond::driver::setsid, cond::driver::message::setsid, OsErr());
         return false;
     }
+    sigset_t set;
     rc = sigemptyset(&set);
     if (rc) {
         OsErr(errno);
@@ -878,7 +876,7 @@ bool Driver::Service(int argc, char* argv[])
         err("E%04d %s (%d)", cond::driver::hup, cond::driver::message::hup, OsErr());
         return false;
     }
-    nullFile = ::open("/dev/null", O_RDWR);
+    int nullFile = ::open("/dev/null", O_RDWR);
     if (-1 == nullFile) {
         OsErr(errno);
         AppErr(cond::driver::null);
@@ -1380,7 +1378,7 @@ bool Driver::Start(int argc, char* argv[])
     //  passed on Linux or macOS, we are already forked and can enter the Run
     //  method on this task and then return false since there is no console.
 
-    if (_daemon) {
+    if (Daemon()) {
         Run(argc, argv);
         return false;
     }
@@ -1390,7 +1388,7 @@ bool Driver::Start(int argc, char* argv[])
 
     _thread = std::thread([=]() {
         Run(argc, argv);
-        });
+    });
     return true;
 }
 

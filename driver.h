@@ -49,8 +49,8 @@ class Driver final
     CRITICAL_SECTION _section;
     SERVICE_STATUS _status;
     SERVICE_TABLE_ENTRY _dispatch[2];
-
 #endif
+
     Socket _v4tcp;
     Socket _v6tcp;
     UdpChannel _udpChannel4;
@@ -63,6 +63,7 @@ class Driver final
 
     void Init();
     void Reset();
+
     bool Stopping();
     bool Stopped();
     bool Daemon();
@@ -103,6 +104,7 @@ class Driver final
 public:
     Driver();
     ~Driver();
+
     void Stopping(bool stopping);
     void Stopped(bool stopped);
     void Daemon(bool daemon);

@@ -1,2 +1,3 @@
 process handle -n true -p true SIGINT
 process handle -n true -p true SIGPIPE
+settings set target.process.follow-fork-mode child

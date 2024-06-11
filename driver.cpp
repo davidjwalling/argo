@@ -173,7 +173,8 @@ namespace cond {
 
 namespace driver {
     enum {
-        port = 4197
+        port = 4197,
+        stopwait = 100
     };
     namespace arg {
         constexpr const char* configfile = "-f";
@@ -303,24 +304,42 @@ void Driver::Reset()
 
 bool Driver::Stopping()
 {
-     return _stopping;
+    return _stopping.load(memory_order_acquire);
 }
 
 void Driver::Stopping(bool stopping)
 {
-    _stopping = stopping;
+    _stopping.store(stopping, memory_order_release);
+}
+
+bool Driver::Stopped()
+{
+    return _stopped.load(memory_order_acquire);
+}
+
+void Driver::Stopped(bool stopped)
+{
+    _stopped.store(stopped, memory_order_release);
+}
+
+bool Driver::Daemon()
+{
+    return _daemon.load(memory_order_acquire);
+}
+
+void Driver::Daemon(bool daemon)
+{
+    _daemon.store(daemon, memory_order_release);
 }
 
 bool Driver::Winsock()
 {
-    //return _winsock.load(memory_order_acquire);
-    return _winsock;
+    return _winsock.load(memory_order_acquire);
 }
 
 void Driver::Winsock(bool winsock)
 {
-    //_winsock.store(winsock, memory_order_release);
-    _winsock = winsock;
+    _winsock.store(winsock, memory_order_release);
 }
 
 void Driver::Config(const char* config)
@@ -433,7 +452,8 @@ void Driver::Main(DWORD argc, LPSTR* argv)
     LeaveCriticalSection(&_section);
 
     //  Apply the service name if provided. Run the program logic on the
-    //  service thread.
+    //  service thread. Run will exit when Stopping(true) is called in the
+    //  Driver::Handle routine above.
 
     if (argc)
         _name = argv[0];
@@ -1152,11 +1172,8 @@ bool Driver::GetModel()
             inf("I%04d %s", cond::driver::modelloaded, cond::driver::message::modelloaded);
             _udpChannel4.SetJson(_json);
             _udpChannel6.SetJson(_json);
-            {
-                lock_guard<mutex> lock(_mutexForChannels);
-                for (auto& c : _channel) {
-                    c.SetJson(_json);
-                }
+            for (auto& c : _channel) {
+                c.SetJson(_json);
             }
         }
     }
@@ -1239,14 +1256,11 @@ void Driver::Queue(Channel* channel)
 
 void Driver::GetClient()
 {
-    lock_guard<mutex> lock(_mutexForChannels);
     int n = 0;
     for (; n < driver::channels; n++) {
         if (_channel[n].State() == channel::state::ready) {
             SOCKET client = _v4tcp.Accept();
             if (client) {
-                int flags = fcntl(client, F_GETFL, 0);
-                fcntl(client, F_SETFL, flags | O_NONBLOCK);
                 _channel[n].SetAddressAndPortFrom(_v4tcp);
             } else {
                 client = _v6tcp.Accept();
@@ -1293,8 +1307,6 @@ Channel* Driver::Dequeue()
 
 void Driver::ServiceChannel()
 {
-    if (Stopping())
-        return;
     //_udpChannel4.Service();
     //_udpChannel6.Service();
     Channel* channel = Dequeue();
@@ -1313,6 +1325,7 @@ void Driver::Mainline()
         GetClient();
         ServiceChannel();
     }
+
     inf("I%04d %s", cond::driver::stopping, cond::driver::message::stopping);
 }
 
@@ -1323,11 +1336,13 @@ void Driver::Finalize()
     CloseAddress(_v4tcp, _udpChannel4.Sock());
     CloseAddress(_v6tcp, _udpChannel6.Sock());
 
+    //  Close any open channel sockets.
+
     for (auto &c : _channel) {
         c.Close();
     }
-#if defined(_WIN32)
 
+#if defined(_WIN32)
     //  Cleanup Windows Sockets resources if WSAStartup succeeded.
 
     if (Winsock()) {
@@ -1337,17 +1352,18 @@ void Driver::Finalize()
 #endif
 
     inf("I%04d %s", cond::driver::finalize, cond::driver::message::finalize);
-    _stopped = true;
 }
 
 void Driver::Run(int argc, char* argv[])
 {
     //  Enter the Driver's mainline loop only if initialization succeeds. Call
-    //  Finalize in any case.
+    //  Finalize and indicate thread completion in any case.
 
-    if (Initialize(argc, argv))
+    if (Initialize(argc, argv)) {
         Mainline();
+    }
     Finalize();
+    Stopped(true);
 }
 
 bool Driver::Start(int argc, char* argv[])
@@ -1356,8 +1372,9 @@ bool Driver::Start(int argc, char* argv[])
     //  or uninstall was run or the Windows service dispatcher was called, then
     //  we can exit now.
 
-    if (!Service(argc, argv))
+    if (!Service(argc, argv)) {
         return false;
+    }
 
     //  If Service returned true, we continue. Now if the "service" argument was
     //  passed on Linux or macOS, we are already forked and can enter the Run
@@ -1380,16 +1397,22 @@ bool Driver::Start(int argc, char* argv[])
 void Driver::Stop()
 {
     //  If we reach Stop, then no error has occurred. Clear the application
-    //  error code and set the stopping indicator. Join the background thread
-    //  if we have one.
+    //  error code and set the stopping indicator.
 
     AppErr(0);
     Stopping(true);
-    while (!_stopped) {
+
+    //  Wait up to 1 second for the thread finish finalization.
+
+    for (int n = driver::stopwait; n && !Stopped(); n--) {
         this_thread::sleep_for(chrono::milliseconds(10));
     }
-    if (_thread.joinable())
+
+    //  If Finalization finished, join the thread if joinable.
+
+    if (Stopped() && _thread.joinable()) {
         _thread.join();
+    }
 }
 
 int Driver::Result()

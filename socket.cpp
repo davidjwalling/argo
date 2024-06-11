@@ -9,6 +9,7 @@ namespace cond {
             start = cond_base_socket,
             stream,
             datagram,
+            fcntl,
             block,
             reuse,
             bind,
@@ -101,6 +102,29 @@ bool Socket::Writable()
     return false;
 }
 
+bool Socket::Unblock(SOCKET sock)
+{
+#if defined(_WIN32)
+    unsigned long nonblock = 1;
+    if (ioctlsocket(sock, FIONBIO, &nonblock)) {
+#else
+    int flags = fcntl(sock, F_GETFL, 0);
+    if (SOCKET_ERROR == flags) {
+        OsErr(WSAGetLastError());
+        AppErr(cond::socket::fcntl);
+        closesocket(sock);
+        return false;
+    }
+    if (SOCKET_ERROR == fcntl(sock, F_SETFL, flags | O_NONBLOCK)) {
+#endif
+        OsErr(WSAGetLastError());
+        AppErr(cond::socket::block);
+        closesocket(sock);
+        return false;
+    }
+    return true;
+}
+
 bool Socket::Stream(bool v6)
 {
     _v6 = v6;
@@ -110,15 +134,7 @@ bool Socket::Stream(bool v6)
         AppErr(cond::socket::stream);
         return false;
     }
-#if defined(_WIN32)
-    unsigned long nonblock = 1;
-    if (ioctlsocket(_socket, FIONBIO, &nonblock)) {
-#else
-    if (SOCKET_ERROR == fcntl(_socket, F_SETFL, O_NONBLOCK)) {
-#endif
-        OsErr(WSAGetLastError());
-        AppErr(cond::socket::block);
-        closesocket(_socket);
+    if (!Unblock(_socket)) {
         _socket = 0;
         return false;
     }
@@ -133,14 +149,7 @@ bool Socket::Datagram(bool v6)
         AppErr(cond::socket::datagram);
         return false;
     }
-#if defined(_WIN32)
-    unsigned long nonblock = 1;
-    if (ioctlsocket(_socket, FIONBIO, &nonblock)) {
-#else
-    if (SOCKET_ERROR == fcntl(_socket, F_SETFL, O_NONBLOCK)) {
-#endif
-        AppErr(cond::socket::datagram);
-        closesocket(_socket);
+    if (!Unblock(_socket)) {
         _socket = 0;
         return false;
     }
@@ -213,6 +222,9 @@ SOCKET Socket::Accept()
             AppErr(cond::socket::accept);
             return 0;
         }
+        if (!Unblock(client)) {
+            return 0;
+        }
         addrLen = sizeof(sockaddr_in6);
         if (getpeername(client, (sockaddr*)&addr6, &addrLen)) {
             OsErr(WSAGetLastError());
@@ -227,6 +239,9 @@ SOCKET Socket::Accept()
         client = accept(_socket, (sockaddr*)&addr4, &addrLen);
         if (INVALID_SOCKET == client) {
             AppErr(cond::socket::accept);
+            return 0;
+        }
+        if (!Unblock(client)) {
             return 0;
         }
         addrLen = sizeof(sockaddr);

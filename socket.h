@@ -35,6 +35,7 @@ public:
 
     bool Readable();
     bool Writable();
+    bool Unblock(SOCKET sock);
     bool Stream(bool v6);
     bool Datagram(bool v6);
     bool Bind();

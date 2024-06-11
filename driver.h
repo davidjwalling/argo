@@ -8,7 +8,6 @@
 #include "udpchannel.h"
 
 #include <atomic>
-#include <mutex>
 #include <string>
 #include <thread>
 
@@ -21,10 +20,10 @@ namespace driver {
 class Driver final
     : public IDriver
 {
-    bool _stopping;
-    bool _stopped;
-    bool _daemon;
-    bool _winsock;
+    std::atomic<bool> _stopping;
+    std::atomic<bool> _stopped;
+    std::atomic<bool> _daemon;
+    std::atomic<bool> _winsock;
 
     uint16_t _port;
 
@@ -60,14 +59,15 @@ class Driver final
     Channel _channel[driver::channels];
 
     Json _json;
-
-    std::mutex _mutexForChannels;
     std::thread _thread;
 
     void Init();
     void Reset();
     bool Stopping();
+    bool Stopped();
+    bool Daemon();
     bool Winsock();
+
 #if defined(_WIN32)
     bool OpenServiceManager();
     void Install(const char* name);
@@ -75,6 +75,7 @@ class Driver final
     void CloseServiceManager();
 #endif
     bool Service(int argc, char* argv[]);
+
 #if defined(_WIN32)
     bool GetRegistryValue(HKEY key, const char* name, char* buf, DWORD* size);
     void GetRegistryVars();
@@ -87,6 +88,7 @@ class Driver final
     void GetArgVars(int argc, char* argv[]);
     bool GetModel();
     void Configure(int argc, char* argv[]);
+
     bool OpenAddress(Socket& tcp, Socket& udp, bool v6 = false);
     void CloseAddress(Socket& tcp, Socket& udp);
     bool Initialize(int argc, char* argv[]);
@@ -102,11 +104,15 @@ public:
     Driver();
     ~Driver();
     void Stopping(bool stopping);
+    void Stopped(bool stopped);
+    void Daemon(bool daemon);
     void Winsock(bool winsock);
+
 #if defined(_WIN32)
     void Handle(DWORD control);
     void Main(DWORD argc, LPSTR* argv);
 #endif
+
     void Config(const char* config) override;
     void Copyright(const char* copyright) override;
     void Description(const char* description) override;
@@ -116,6 +122,7 @@ public:
     void Spec(const char* spec) override;
     void Title(const char* title) override;
     void Usage(const char* usage) override;
+
     bool Start(int argc, char* argv[]) override;
     void Stop() override;
     int Result() override;

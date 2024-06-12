@@ -38,6 +38,8 @@ enum {
 #define WSAEWOULDBLOCK EWOULDBLOCK
 #define WSAGetLastError() errno
 #endif
+#define HILO32(x) ((x << 24) | ((x & 0xFF00) << 8) | ((x & 0xFF0000) >> 8) | (x >> 24))
+#define HILO64(x) ((x << 56) | ((x & 0xFF00) << 40) | ((x & 0xFF0000) << 24) | ((x & 0xFF000000) << 8) | ((x >> 8) & 0xFF000000) | ((x >> 24) & 0xFF0000) | ((x >> 40) & 0xFF00) | (x >> 56))
 
 #if defined(_WIN32)
 using ssize_t = int;

@@ -25,7 +25,7 @@ install:
 .PHONY:
 	clean
 
-LIBOBJS = channel.o driver.o json.o logger.o path.o socket.o udpchannel.o
+LIBOBJS = channel.o digest.o driver.o json.o logger.o md5.o path.o sha.o socket.o udpchannel.o
 TESTOBJS = testargo.o
 APPOBJS = argo.o
 
@@ -44,6 +44,9 @@ argo.o: argo.cpp
 channel.o: channel.cpp
 	${LIBCC} channel.cpp
 
+digest.o: digest.cpp
+	${LIBCC} digest.cpp
+
 driver.o: driver.cpp
 	${LIBCC} driver.cpp
 
@@ -53,8 +56,14 @@ json.o: json.cpp
 logger.o: logger.cpp
 	${LIBCC} logger.cpp
 
+md5.o: md5.cpp
+	${LIBCC} md5.cpp
+
 path.o: path.cpp
 	${LIBCC} path.cpp
+
+sha.o: sha.cpp
+	${LIBCC} sha.cpp
 
 socket.o: socket.cpp
 	${LIBCC} socket.cpp
@@ -71,6 +80,9 @@ argo.cpp: idriver.h
 channel.cpp: ascii.h channel.h
 	touch channel.cpp
 
+digest.cpp: digest.h
+	touch digest.cpp
+
 driver.cpp: channel.h driver.h logger.h
 	touch driver.cpp
 
@@ -80,8 +92,14 @@ json.cpp: json.h
 logger.cpp: api.h logger.h
 	touch logger.cpp
 
+md5.cpp: md5.h asn.h oid.h
+	touch md5.cpp
+
 path.cpp: path.h
 	touch path.cpp
+
+sha.cpp: sha.h asn.h oid.h
+	touch sha.cpp
 
 socket.cpp: logger.h socket.h
 	touch socket.cpp
@@ -95,8 +113,14 @@ udpchannel.cpp: udpchannel.h
 api.h: iapi.h
 	touch api.h
 
+asn.h: api.h
+	touch asn.h
+
 channel.h: json.h socket.h
 	touch channel.h
+
+digest.h: api.h
+	touch digest.h
 
 driver.h: api.h channel.h idriver.h json.h socket.h udpchannel.h
 	touch driver.h
@@ -110,8 +134,14 @@ json.h: api.h path.h
 logger.h:
 	touch logger.h
 
+md5.h: api.h digest.h
+	touch md5.h
+
 path.h: api.h
 	touch path.h
+
+sha.h: api.h digest.h
+	touch sha.h
 
 socket.h: api.h
 	touch socket.h

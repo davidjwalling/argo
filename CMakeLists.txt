@@ -29,10 +29,13 @@ endif()
 
 set (LIB_SRCS
     channel.cpp
+    digest.cpp
     driver.cpp
     json.cpp
     logger.cpp
+    md5.cpp
     path.cpp
+    sha.cpp
     socket.cpp
     udpchannel.cpp
 )

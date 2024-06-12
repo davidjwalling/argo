@@ -150,6 +150,7 @@
     <None Include="..\.gitignore" />
     <None Include="..\Makefile" />
     <None Include="..\WINDOWS.md" />
+    <None Include="make.bat" />
     <Text Include="..\CMakeLists.txt" />
     <None Include="..\ANDROID.md" />
     <None Include="..\IOS.md" />

@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">argo</string>
+    <string name="app_name">Argo</string>
+    <string name="edit_hint">Enter a command</string>
+    <string name="text_hint">%s</string>
 </resources>

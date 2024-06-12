@@ -21,9 +21,9 @@
             "program": "${workspaceFolder}/build/testargo",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
+            "externalConsole": true,
             "MIMode": "gdb",
             "miDebuggerArgs": "--init-command ${workspaceFolder}/.gdbinit"
         },
@@ -37,7 +37,8 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "MIMode": "lldb"
+            "MIMode": "lldb",
+            "miDebuggerArgs": "--init-command ${workspaceFolder}/.lldbinit"
         },
         {
             "name": "(lldb) testargo",
@@ -49,7 +50,8 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "MIMode": "lldb"
+            "MIMode": "lldb",
+            "miDebuggerArgs": "--init-command ${workspaceFolder}/.lldbinit"
         }
     ]
 }

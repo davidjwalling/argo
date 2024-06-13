@@ -7,7 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8CD3D3952C125FAA004126DA /* argoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3D3942C125FAA004126DA /* argoApp.swift */; };
+		8C24C9E12C1B316900D9F6F0 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9D32C1B316800D9F6F0 /* socket.cpp */; };
+		8C24C9E22C1B316900D9F6F0 /* channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9D42C1B316800D9F6F0 /* channel.cpp */; };
+		8C24C9E32C1B316900D9F6F0 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9D52C1B316800D9F6F0 /* json.cpp */; };
+		8C24C9E42C1B316900D9F6F0 /* udpchannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9DB2C1B316800D9F6F0 /* udpchannel.cpp */; };
+		8C24C9E52C1B316900D9F6F0 /* path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9DC2C1B316800D9F6F0 /* path.cpp */; };
+		8C24C9E62C1B316900D9F6F0 /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9E02C1B316900D9F6F0 /* logger.cpp */; };
+		8C24C9EA2C1B4D6E00D9F6F0 /* argoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9E92C1B4D6E00D9F6F0 /* argoApp.swift */; };
 		8CD3D3972C125FAA004126DA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3D3962C125FAA004126DA /* ContentView.swift */; };
 		8CD3D3992C125FAB004126DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD3D3982C125FAB004126DA /* Assets.xcassets */; };
 		8CD3D39C2C125FAB004126DA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD3D39B2C125FAB004126DA /* Preview Assets.xcassets */; };
@@ -16,8 +22,22 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8C24C9D32C1B316800D9F6F0 /* socket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = socket.cpp; path = ../../../socket.cpp; sourceTree = "<group>"; };
+		8C24C9D42C1B316800D9F6F0 /* channel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = channel.cpp; path = ../../../channel.cpp; sourceTree = "<group>"; };
+		8C24C9D52C1B316800D9F6F0 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../../../json.cpp; sourceTree = "<group>"; };
+		8C24C9D62C1B316800D9F6F0 /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = socket.h; path = ../../../socket.h; sourceTree = "<group>"; };
+		8C24C9D72C1B316800D9F6F0 /* logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = logger.h; path = ../../../logger.h; sourceTree = "<group>"; };
+		8C24C9D82C1B316800D9F6F0 /* path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = path.h; path = ../../../path.h; sourceTree = "<group>"; };
+		8C24C9D92C1B316800D9F6F0 /* ascii.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ascii.h; path = ../../../ascii.h; sourceTree = "<group>"; };
+		8C24C9DA2C1B316800D9F6F0 /* api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = api.h; path = ../../../api.h; sourceTree = "<group>"; };
+		8C24C9DB2C1B316800D9F6F0 /* udpchannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = udpchannel.cpp; path = ../../../udpchannel.cpp; sourceTree = "<group>"; };
+		8C24C9DC2C1B316800D9F6F0 /* path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = path.cpp; path = ../../../path.cpp; sourceTree = "<group>"; };
+		8C24C9DD2C1B316800D9F6F0 /* json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json.h; path = ../../../json.h; sourceTree = "<group>"; };
+		8C24C9DE2C1B316900D9F6F0 /* channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = channel.h; path = ../../../channel.h; sourceTree = "<group>"; };
+		8C24C9DF2C1B316900D9F6F0 /* udpchannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = udpchannel.h; path = ../../../udpchannel.h; sourceTree = "<group>"; };
+		8C24C9E02C1B316900D9F6F0 /* logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = logger.cpp; path = ../../../logger.cpp; sourceTree = "<group>"; };
+		8C24C9E92C1B4D6E00D9F6F0 /* argoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = argoApp.swift; sourceTree = "<group>"; };
 		8CD3D3912C125FAA004126DA /* argo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = argo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8CD3D3942C125FAA004126DA /* argoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = argoApp.swift; sourceTree = "<group>"; };
 		8CD3D3962C125FAA004126DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8CD3D3982C125FAB004126DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8CD3D39B2C125FAB004126DA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -60,17 +80,31 @@
 		8CD3D3932C125FAA004126DA /* argo */ = {
 			isa = PBXGroup;
 			children = (
-				8CD3D3AA2C126207004126DA /* wrap_driver.h */,
+				8C24C9DA2C1B316800D9F6F0 /* api.h */,
+				8CD3D3A22C12601B004126DA /* argo-Bridging-Header.h */,
+				8C24C9D92C1B316800D9F6F0 /* ascii.h */,
+				8C24C9D42C1B316800D9F6F0 /* channel.cpp */,
+				8C24C9DE2C1B316900D9F6F0 /* channel.h */,
 				8CD3D3A52C12601B004126DA /* driver.cpp */,
 				8CD3D3A32C12601B004126DA /* driver.h */,
 				8CD3D3A42C12601B004126DA /* iapi.h */,
 				8CD3D3A62C12601B004126DA /* idriver.h */,
-				8CD3D3942C125FAA004126DA /* argoApp.swift */,
+				8C24C9D52C1B316800D9F6F0 /* json.cpp */,
+				8C24C9DD2C1B316800D9F6F0 /* json.h */,
+				8C24C9E02C1B316900D9F6F0 /* logger.cpp */,
+				8C24C9D72C1B316800D9F6F0 /* logger.h */,
+				8C24C9DC2C1B316800D9F6F0 /* path.cpp */,
+				8C24C9D82C1B316800D9F6F0 /* path.h */,
+				8C24C9D32C1B316800D9F6F0 /* socket.cpp */,
+				8C24C9D62C1B316800D9F6F0 /* socket.h */,
+				8C24C9DB2C1B316800D9F6F0 /* udpchannel.cpp */,
+				8C24C9DF2C1B316900D9F6F0 /* udpchannel.h */,
+				8CD3D3A82C1260A0004126DA /* wrap_driver.mm */,
+				8CD3D3AA2C126207004126DA /* wrap_driver.h */,
+				8C24C9E92C1B4D6E00D9F6F0 /* argoApp.swift */,
 				8CD3D3962C125FAA004126DA /* ContentView.swift */,
 				8CD3D3982C125FAB004126DA /* Assets.xcassets */,
 				8CD3D39A2C125FAB004126DA /* Preview Content */,
-				8CD3D3A22C12601B004126DA /* argo-Bridging-Header.h */,
-				8CD3D3A82C1260A0004126DA /* wrap_driver.mm */,
 			);
 			path = argo;
 			sourceTree = "<group>";
@@ -154,9 +188,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C24C9EA2C1B4D6E00D9F6F0 /* argoApp.swift in Sources */,
 				8CD3D3972C125FAA004126DA /* ContentView.swift in Sources */,
+				8C24C9E42C1B316900D9F6F0 /* udpchannel.cpp in Sources */,
+				8C24C9E52C1B316900D9F6F0 /* path.cpp in Sources */,
+				8C24C9E12C1B316900D9F6F0 /* socket.cpp in Sources */,
 				8CD3D3A92C1260A0004126DA /* wrap_driver.mm in Sources */,
-				8CD3D3952C125FAA004126DA /* argoApp.swift in Sources */,
+				8C24C9E22C1B316900D9F6F0 /* channel.cpp in Sources */,
+				8C24C9E32C1B316900D9F6F0 /* json.cpp in Sources */,
+				8C24C9E62C1B316900D9F6F0 /* logger.cpp in Sources */,
 				8CD3D3A72C12601B004126DA /* driver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

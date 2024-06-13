@@ -265,7 +265,7 @@ void Channel::HaveHttpRequest()
     tm m{ 0 };
     memcpy(&m, gmtime(&t), sizeof(m));
     char date[30] = { 0 };
-    sprintf(date, "%s, %u %s %u %02u:%02u:%02u GMT",
+    snprintf(date, sizeof(date), "%s, %u %s %u %02u:%02u:%02u GMT",
         http::day[m.tm_wday], m.tm_mday, http::month[m.tm_mon], m.tm_year + 1900,
         m.tm_hour, m.tm_min, m.tm_sec);
 
@@ -273,10 +273,10 @@ void Channel::HaveHttpRequest()
     _socket.RemoteAddress(ip);
 
     char body[768] = { 0 };
-    sprintf(body, "%s%s%s",
+    snprintf(body, sizeof(body), "%s%s%s",
         ok_1, ip, ok_2);
     char hdr[256] = { 0 };
-    sprintf(hdr, ok_0, date, strlen(body));
+    snprintf(hdr, sizeof(hdr), ok_0, date, strlen(body));
 
     _write = hdr;
     _write += body;

@@ -15,9 +15,13 @@
 }
 - (void)start
 {
+    self.driverItem->Title("Argo");
+    self.driverItem->Copyright("Copyright 2010 David J. Walling. MIT License.");
+    self.driverItem->Start(0, NULL);
 }
 - (void)stop
 {
+    self.driverItem->Stop();
 }
 @end
 

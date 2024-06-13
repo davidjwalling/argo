@@ -28,14 +28,26 @@ C:\repos\argo\build> cmake --build . --config Debug --target install
 C:\repos\argo\build> cd ..
 ```
 ### Run Argo in the Foreground
-Use the "where ava" command to confirm the location of the Ava executable.  
+Use the "where argo" command to confirm the location of the Argo executable.  
 ```
 C:\repos\argo> where argo
 C:\Windows\System32\argo.exe
 ```
 ### Run Argo as a Windows Service
+```
+```
 #### Install the Service
+```
+```
 #### Start the Service
+```
+```
 #### Stop the Service
+```
+```
 #### Uninstall the Service
+```
+```
 ### Run the Test Program
+```
+```

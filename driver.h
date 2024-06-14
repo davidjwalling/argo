@@ -20,10 +20,10 @@ namespace driver {
 class Driver final
     : public IDriver
 {
-    std::atomic<bool> _stopping;
-    std::atomic<bool> _stopped;
     std::atomic<bool> _daemon;
     std::atomic<bool> _winsock;
+    std::atomic<bool> _running;
+    std::atomic<bool> _stopping;
 
     uint16_t _port;
 
@@ -59,15 +59,15 @@ class Driver final
     Channel _channel[driver::channels];
 
     Json _json;
-    std::thread _thread;
+    std::shared_ptr<std::thread> _thread;
 
     void Init();
     void Reset();
 
-    bool Stopping();
-    bool Stopped();
     bool Daemon();
     bool Winsock();
+    bool Running();
+    bool Stopping();
 
 #if defined(_WIN32)
     bool OpenServiceManager();
@@ -105,10 +105,10 @@ public:
     Driver();
     ~Driver();
 
-    void Stopping(bool stopping);
-    void Stopped(bool stopped);
     void Daemon(bool daemon);
     void Winsock(bool winsock);
+    void Running(bool running);
+    void Stopping(bool stop);
 
 #if defined(_WIN32)
     void Handle(DWORD control);

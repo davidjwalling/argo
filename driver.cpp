@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace cond {
-    namespace driver{
+    namespace driver {
         enum {
             servicestart = cond_base_driver,
             title,
@@ -261,10 +261,10 @@ void Driver::Init()
     //  and when it is destroyed so that no runtime member value remains in
     //  memory when the program ends.
 
-    _stopping = false;
-    _stopped = false;
     _daemon = false;
     _winsock = false;
+    _running = false;
+    _stopping = false;
 
     _port = driver::port;
     _first = nullptr;
@@ -297,26 +297,6 @@ void Driver::Reset()
     Init();
 }
 
-bool Driver::Stopping()
-{
-    return _stopping.load(memory_order_acquire);
-}
-
-void Driver::Stopping(bool stopping)
-{
-    _stopping.store(stopping, memory_order_release);
-}
-
-bool Driver::Stopped()
-{
-    return _stopped.load(memory_order_acquire);
-}
-
-void Driver::Stopped(bool stopped)
-{
-    _stopped.store(stopped, memory_order_release);
-}
-
 bool Driver::Daemon()
 {
     return _daemon.load(memory_order_acquire);
@@ -335,6 +315,26 @@ bool Driver::Winsock()
 void Driver::Winsock(bool winsock)
 {
     _winsock.store(winsock, memory_order_release);
+}
+
+bool Driver::Running()
+{
+    return _running.load(memory_order_acquire);
+}
+
+void Driver::Running(bool starting)
+{
+    _running.store(starting, memory_order_release);
+}
+
+bool Driver::Stopping()
+{
+    return _stopping.load(memory_order_acquire);
+}
+
+void Driver::Stopping(bool stopping)
+{
+    _stopping.store(stopping, memory_order_release);
 }
 
 void Driver::Config(const char* config)
@@ -1356,11 +1356,12 @@ void Driver::Run(int argc, char* argv[])
     //  Enter the Driver's mainline loop only if initialization succeeds. Call
     //  Finalize and indicate thread completion in any case.
 
+    Running(true);
     if (Initialize(argc, argv)) {
         Mainline();
     }
     Finalize();
-    Stopped(true);
+    Running(false);
 }
 
 bool Driver::Start(int argc, char* argv[])
@@ -1385,32 +1386,45 @@ bool Driver::Start(int argc, char* argv[])
     //  If Service returned true but we not a daemon, start a background thread
     //  and call Run on it. Then return true to accept console input.
 
-    _thread = std::thread([=]() {
-        Run(argc, argv);
-    });
+    if (!_thread) {
+        try {
+            _thread = std::make_shared<std::thread>([=]() {
+                Run(argc, argv);
+            });
+        } catch (const system_error&) {
+            return false;
+        }
+    }
     return true;
 }
 
 void Driver::Stop()
 {
-    //  If we reach Stop, then no error has occurred. Clear the application
-    //  error code and set the stopping indicator.
+    //  Log and indicate we want to stop.
 
-    AppErr(0);
     inf("I%04d %s", cond::driver::servicestop, cond::driver::message::servicestop);
     Stopping(true);
 
     //  Wait up to 1 second for the thread finish finalization.
 
-    for (int n = driver::stopwait; n && !Stopped(); n--) {
+    for (int n = driver::stopwait; n && Running(); n--) {
         this_thread::sleep_for(chrono::milliseconds(10));
     }
 
-    //  If Finalization finished, join the thread if joinable.
+    //  If finalization finished, join the thread if joinable.
 
-    if (Stopped() && _thread.joinable()) {
-        _thread.join();
+    if (!Running()) {
+        if (_thread) {
+            if (_thread->joinable()) {
+                _thread->join();
+            }
+            _thread = nullptr;
+        }
     }
+
+    //  Clear any application error code.
+
+    AppErr(0);
 }
 
 int Driver::Result()

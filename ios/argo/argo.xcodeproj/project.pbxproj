@@ -13,7 +13,6 @@
 		8C24C9E42C1B316900D9F6F0 /* udpchannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9DB2C1B316800D9F6F0 /* udpchannel.cpp */; };
 		8C24C9E52C1B316900D9F6F0 /* path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9DC2C1B316800D9F6F0 /* path.cpp */; };
 		8C24C9E62C1B316900D9F6F0 /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9E02C1B316900D9F6F0 /* logger.cpp */; };
-		8C24C9EA2C1B4D6E00D9F6F0 /* argoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9E92C1B4D6E00D9F6F0 /* argoApp.swift */; };
 		8CD3D3972C125FAA004126DA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3D3962C125FAA004126DA /* ContentView.swift */; };
 		8CD3D3992C125FAB004126DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD3D3982C125FAB004126DA /* Assets.xcassets */; };
 		8CD3D39C2C125FAB004126DA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD3D39B2C125FAB004126DA /* Preview Assets.xcassets */; };
@@ -36,7 +35,6 @@
 		8C24C9DE2C1B316900D9F6F0 /* channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = channel.h; path = ../../../channel.h; sourceTree = "<group>"; };
 		8C24C9DF2C1B316900D9F6F0 /* udpchannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = udpchannel.h; path = ../../../udpchannel.h; sourceTree = "<group>"; };
 		8C24C9E02C1B316900D9F6F0 /* logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = logger.cpp; path = ../../../logger.cpp; sourceTree = "<group>"; };
-		8C24C9E92C1B4D6E00D9F6F0 /* argoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = argoApp.swift; sourceTree = "<group>"; };
 		8CD3D3912C125FAA004126DA /* argo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = argo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CD3D3962C125FAA004126DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8CD3D3982C125FAB004126DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -101,7 +99,6 @@
 				8C24C9DF2C1B316900D9F6F0 /* udpchannel.h */,
 				8CD3D3A82C1260A0004126DA /* wrap_driver.mm */,
 				8CD3D3AA2C126207004126DA /* wrap_driver.h */,
-				8C24C9E92C1B4D6E00D9F6F0 /* argoApp.swift */,
 				8CD3D3962C125FAA004126DA /* ContentView.swift */,
 				8CD3D3982C125FAB004126DA /* Assets.xcassets */,
 				8CD3D39A2C125FAB004126DA /* Preview Content */,
@@ -145,7 +142,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1400;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					8CD3D3902C125FAA004126DA = {
 						CreatedOnToolsVersion = 14.0.1;
@@ -188,7 +185,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C24C9EA2C1B4D6E00D9F6F0 /* argoApp.swift in Sources */,
 				8CD3D3972C125FAA004126DA /* ContentView.swift in Sources */,
 				8C24C9E42C1B316900D9F6F0 /* udpchannel.cpp in Sources */,
 				8C24C9E52C1B316900D9F6F0 /* path.cpp in Sources */,
@@ -240,6 +236,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -300,6 +297,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -336,7 +334,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -370,7 +368,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

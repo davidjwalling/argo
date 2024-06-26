@@ -23,7 +23,6 @@ android/gradle.properties
 android/gradlew
 android/gradlew.bat
 android/local.properties
-argo
 build/
 Example*.java
 prelog

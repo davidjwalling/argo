@@ -13,6 +13,7 @@
 		8C24C9E42C1B316900D9F6F0 /* udpchannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9DB2C1B316800D9F6F0 /* udpchannel.cpp */; };
 		8C24C9E52C1B316900D9F6F0 /* path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9DC2C1B316800D9F6F0 /* path.cpp */; };
 		8C24C9E62C1B316900D9F6F0 /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C9E02C1B316900D9F6F0 /* logger.cpp */; };
+		8C96D6432C2B904500B37DED /* argoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C96D6422C2B904500B37DED /* argoApp.swift */; };
 		8CD3D3972C125FAA004126DA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD3D3962C125FAA004126DA /* ContentView.swift */; };
 		8CD3D3992C125FAB004126DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD3D3982C125FAB004126DA /* Assets.xcassets */; };
 		8CD3D39C2C125FAB004126DA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD3D39B2C125FAB004126DA /* Preview Assets.xcassets */; };
@@ -35,6 +36,7 @@
 		8C24C9DE2C1B316900D9F6F0 /* channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = channel.h; path = ../../../channel.h; sourceTree = "<group>"; };
 		8C24C9DF2C1B316900D9F6F0 /* udpchannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = udpchannel.h; path = ../../../udpchannel.h; sourceTree = "<group>"; };
 		8C24C9E02C1B316900D9F6F0 /* logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = logger.cpp; path = ../../../logger.cpp; sourceTree = "<group>"; };
+		8C96D6422C2B904500B37DED /* argoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = argoApp.swift; sourceTree = "<group>"; };
 		8CD3D3912C125FAA004126DA /* argo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = argo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CD3D3962C125FAA004126DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8CD3D3982C125FAB004126DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 				8C24C9DF2C1B316900D9F6F0 /* udpchannel.h */,
 				8CD3D3A82C1260A0004126DA /* wrap_driver.mm */,
 				8CD3D3AA2C126207004126DA /* wrap_driver.h */,
+				8C96D6422C2B904500B37DED /* argoApp.swift */,
 				8CD3D3962C125FAA004126DA /* ContentView.swift */,
 				8CD3D3982C125FAB004126DA /* Assets.xcassets */,
 				8CD3D39A2C125FAB004126DA /* Preview Content */,
@@ -187,6 +190,7 @@
 			files = (
 				8CD3D3972C125FAA004126DA /* ContentView.swift in Sources */,
 				8C24C9E42C1B316900D9F6F0 /* udpchannel.cpp in Sources */,
+				8C96D6432C2B904500B37DED /* argoApp.swift in Sources */,
 				8C24C9E52C1B316900D9F6F0 /* path.cpp in Sources */,
 				8C24C9E12C1B316900D9F6F0 /* socket.cpp in Sources */,
 				8CD3D3A92C1260A0004126DA /* wrap_driver.mm in Sources */,
@@ -251,7 +255,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -306,7 +310,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

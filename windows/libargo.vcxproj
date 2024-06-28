@@ -140,6 +140,7 @@
     <ClInclude Include="..\channel.h" />
     <ClInclude Include="..\digest.h" />
     <ClInclude Include="..\driver.h" />
+    <ClInclude Include="..\hmac.h" />
     <ClInclude Include="..\iapi.h" />
     <ClInclude Include="..\idriver.h" />
     <ClInclude Include="..\json.h" />
@@ -155,6 +156,7 @@
     <ClCompile Include="..\channel.cpp" />
     <ClCompile Include="..\digest.cpp" />
     <ClCompile Include="..\driver.cpp" />
+    <ClCompile Include="..\hmac.cpp" />
     <ClCompile Include="..\json.cpp" />
     <ClCompile Include="..\logger.cpp" />
     <ClCompile Include="..\md5.cpp" />

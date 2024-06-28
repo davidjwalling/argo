@@ -22,10 +22,15 @@ install:
 	cp testargo /usr/local/bin
 	cp argo /usr/local/bin
 
+uninstall:
+	rm -f /usr/local/lib/libargo.so
+	rm -f /usr/local/bin/argo
+	rm -f /usr/local/bin/testargo
+
 .PHONY:
 	clean
 
-LIBOBJS = channel.o digest.o driver.o json.o logger.o md5.o path.o sha.o socket.o udpchannel.o
+LIBOBJS = aes.o channel.o cipher.o des.o digest.o driver.o hmac.o json.o logger.o md5.o path.o random.o sha.o socket.o udpchannel.o
 TESTOBJS = testargo.o
 APPOBJS = argo.o
 
@@ -38,17 +43,29 @@ testargo: ${TESTOBJS}
 argo: ${APPOBJS}
 	${APPLNK} ${APPOBJS} ${SYSLIBS} libargo.so -o $@
 
+aes.o: aes.cpp
+	${LIBCC} aes.cpp
+
 argo.o: argo.cpp
 	${APPCC} argo.cpp
 
 channel.o: channel.cpp
 	${LIBCC} channel.cpp
 
+cipher.o: cipher.cpp
+	${LIBCC} cipher.cpp
+
+des.o: des.cpp
+	${LIBCC} des.cpp
+
 digest.o: digest.cpp
 	${LIBCC} digest.cpp
 
 driver.o: driver.cpp
 	${LIBCC} driver.cpp
+
+hmac.o: hmac.cpp
+	${LIBCC} hmac.cpp
 
 json.o: json.cpp
 	${LIBCC} json.cpp
@@ -62,6 +79,9 @@ md5.o: md5.cpp
 path.o: path.cpp
 	${LIBCC} path.cpp
 
+random.o: random.cpp
+	${LIBCC} random.cpp
+
 sha.o: sha.cpp
 	${LIBCC} sha.cpp
 
@@ -74,17 +94,29 @@ testargo.o: testargo.cpp
 udpchannel.o: udpchannel.cpp
 	${LIBCC} udpchannel.cpp
 
+aes.cpp: aes.h asn.h oid.h
+	touch aes.cpp
+
 argo.cpp: idriver.h
 	touch argo.cpp
 
 channel.cpp: ascii.h channel.h
 	touch channel.cpp
 
+cipher.cpp: cipher.h random.h
+	touch cipher.cpp
+
+des.cpp: des.h asn.h oid.h
+	touch des.cpp
+
 digest.cpp: digest.h
 	touch digest.cpp
 
 driver.cpp: channel.h driver.h logger.h
 	touch driver.cpp
+
+hmac.cpp: hmac.h md5.h sha.h
+	touch hmac.cpp
 
 json.cpp: json.h
 	touch json.cpp
@@ -98,6 +130,9 @@ md5.cpp: md5.h asn.h oid.h
 path.cpp: path.h
 	touch path.cpp
 
+random.cpp: random.h
+	touch random.cpp
+
 sha.cpp: sha.h asn.h oid.h
 	touch sha.cpp
 
@@ -110,6 +145,9 @@ testargo.cpp: iapi.h
 udpchannel.cpp: udpchannel.h
 	touch udpchannel.cpp
 
+aes.h: api.h cipher.h
+	touch aes.h
+
 api.h: iapi.h
 	touch api.h
 
@@ -119,11 +157,20 @@ asn.h: api.h
 channel.h: json.h socket.h
 	touch channel.h
 
+cipher.h: api.h
+	touch cipher.h
+
+des.h: api.h cipher.h
+	touch des.h
+
 digest.h: api.h
 	touch digest.h
 
 driver.h: api.h channel.h idriver.h json.h socket.h udpchannel.h
 	touch driver.h
+
+hmac.h: api.h sha.h
+	touch hmac.h
 
 idriver.h: iapi.h
 	touch idriver.h
@@ -139,6 +186,9 @@ md5.h: api.h digest.h
 
 path.h: api.h
 	touch path.h
+
+random.h: api.h
+	touch random.h
 
 sha.h: api.h digest.h
 	touch sha.h

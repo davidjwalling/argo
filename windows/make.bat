@@ -18,4 +18,9 @@ if "%1" == "install" (
 	copy x64\Release\testargo.exe C:\Windows\System32
 	copy ..\argo.cfg C:\Windows\System32
 )
+if "%1" == "uninstall" (
+	del C:\Windows\System32\libargo.dll
+	del C:\Windows\System32\argo.exe
+	del C:\Windows\System32\testargo.exe
+)
 exit /b

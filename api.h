@@ -18,6 +18,7 @@
 #include <unistd.h> // fork
 #endif
 #include <cstdint> // uint16_t
+#include <cstdio> // printf
 #include <time.h> // time, gmtime
 
 enum {

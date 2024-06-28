@@ -32,22 +32,45 @@ Use the "where argo" command to confirm the location of the Argo executable.
 ```
 C:\repos\argo> where argo
 C:\Windows\System32\argo.exe
+C:\repos\argo>argo
+I1001 Argo 0.X Experimental
+I1002 Copyright 2010 David J. Walling. MIT License.
+I1055 Configuration completed
+exit
+I1056 Service stopping
+I1057 Exiting main loop
+I1058 Finalization completed
 ```
-### Run Argo as a Windows Service
+### Install Argo as a Windows Service
 ```
+C:\repos\argo> argo install
 ```
-#### Install the Service
+### Start the Argo Windows Service
 ```
+C:\repos\argo> sc start ava
+C:\repos\argo> sc query ava
+C:\repos\argo> netstat -an | findstr 1143
 ```
-#### Start the Service
+### Stop the Argo Windows Service
 ```
+C:\repos\argo> sc stop argo
+C:\repos\argo> sc query argo
 ```
-#### Stop the Service
+### Uninstall the Argo Windows Service
 ```
-```
-#### Uninstall the Service
-```
+C:\repos\argo> argo uninstall
+C:\repos\argo> sc query argo
 ```
 ### Run the Test Program
 ```
+C:\repos\argo> testargo all
+Argo Test Program [0.X]
+Copyright 2010 David J. Walling. MIT License.
+
+sizeof(short)      2 bytes
+sizeof(int)        4 bytes
+sizeof(long)       4 bytes
+sizeof(long long)  8 bytes
+...
+Tests Completed
 ```

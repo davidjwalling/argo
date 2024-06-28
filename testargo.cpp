@@ -1,9 +1,9 @@
-#include "iapi.h"
+#include "api.h"
+#include "aes.h"
+#include "des.h"
 #include "hmac.h"
 #include "md5.h"
 #include "sha.h"
-
-#include <iostream>
 
 using namespace std;
 
@@ -26,6 +26,16 @@ typedef struct _hmacTest {
     uint8_t* digest;
     int digestlen;
 } HMACTEST;
+
+typedef struct _cipherTest {
+    const char* label;
+    int count;
+    uint8_t* key;
+    uint8_t* iv;
+    uint8_t* plain;
+    uint8_t* cipher;
+    int len;
+} CIPHERTEST;
 
 namespace testargo {
     const char* all = "all";
@@ -415,6 +425,1093 @@ HMACTEST hmac_sha384_tests[] = {
     { "HMAC-384", 7, hmac_sha2_key_n, 131, hmac_sha2_data_7, 152, hmac_sha384_digest_7, 48 }
 };
 
+// DES-ECB variable plaintext test vectors
+
+uint8_t* const desecb_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const desecb_vp_plain_1 = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const desecb_vp_plain_2 = (uint8_t*)"\x40\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const desecb_vp_plain_3 = (uint8_t*)"\x20\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const desecb_vp_plain_4 = (uint8_t*)"\x10\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desecb_vp_cipher_1 = (uint8_t*)"\x95\xF8\xA5\xE5\xDD\x31\xD9\x00";
+uint8_t* const desecb_vp_cipher_2 = (uint8_t*)"\xDD\x7F\x12\x1C\xA5\x01\x56\x19";
+uint8_t* const desecb_vp_cipher_3 = (uint8_t*)"\x2E\x86\x53\x10\x4F\x38\x34\xEA";
+uint8_t* const desecb_vp_cipher_4 = (uint8_t*)"\x4B\xD3\x88\xFF\x6C\xD8\x1D\x4F";
+
+CIPHERTEST desecb_vp_tests[] = {
+    { "DES-ECB Variable Plaintext", 4, desecb_vp_key, nullptr, desecb_vp_plain_1, desecb_vp_cipher_1, des::recsize },
+    { "DES-ECB Variable Plaintext", 4, desecb_vp_key, nullptr, desecb_vp_plain_2, desecb_vp_cipher_2, des::recsize },
+    { "DES-ECB Variable Plaintext", 4, desecb_vp_key, nullptr, desecb_vp_plain_3, desecb_vp_cipher_3, des::recsize },
+    { "DES-ECB Variable Plaintext", 4, desecb_vp_key, nullptr, desecb_vp_plain_4, desecb_vp_cipher_4, des::recsize }
+};
+
+// DES-ECB inverse permutation test vectors
+
+uint8_t* const desecb_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const desecb_ip_plain_1 = (uint8_t*)"\x2B\x9F\x98\x2F\x20\x03\x7F\xA9";
+uint8_t* const desecb_ip_plain_2 = (uint8_t*)"\x88\x9D\xE0\x68\xA1\x6F\x0B\xE6";
+uint8_t* const desecb_ip_plain_3 = (uint8_t*)"\xE1\x9E\x27\x5D\x84\x6A\x12\x98";
+uint8_t* const desecb_ip_plain_4 = (uint8_t*)"\x32\x9A\x8E\xD5\x23\xD7\x1A\xEC";
+
+uint8_t* const desecb_ip_cipher_1 = (uint8_t*)"\x00\x00\x80\x00\x00\x00\x00\x00";
+uint8_t* const desecb_ip_cipher_2 = (uint8_t*)"\x00\x00\x40\x00\x00\x00\x00\x00";
+uint8_t* const desecb_ip_cipher_3 = (uint8_t*)"\x00\x00\x20\x00\x00\x00\x00\x00";
+uint8_t* const desecb_ip_cipher_4 = (uint8_t*)"\x00\x00\x10\x00\x00\x00\x00\x00";
+
+CIPHERTEST desecb_ip_tests[] = {
+    { "DES-ECB Inverse Permutation", 4, desecb_ip_key, nullptr, desecb_ip_plain_1, desecb_ip_cipher_1, des::recsize },
+    { "DES-ECB Inverse Permutation", 4, desecb_ip_key, nullptr, desecb_ip_plain_2, desecb_ip_cipher_2, des::recsize },
+    { "DES-ECB Inverse Permutation", 4, desecb_ip_key, nullptr, desecb_ip_plain_3, desecb_ip_cipher_3, des::recsize },
+    { "DES-ECB Inverse Permutation", 4, desecb_ip_key, nullptr, desecb_ip_plain_4, desecb_ip_cipher_4, des::recsize }
+};
+
+// DES-ECB variable key test vectors
+
+uint8_t* const desecb_vk_key_1 = (uint8_t*)"\x80\x01\x01\x01\x01\x01\x01\x01";
+uint8_t* const desecb_vk_key_2 = (uint8_t*)"\x40\x01\x01\x01\x01\x01\x01\x01";
+uint8_t* const desecb_vk_key_3 = (uint8_t*)"\x20\x01\x01\x01\x01\x01\x01\x01";
+uint8_t* const desecb_vk_key_4 = (uint8_t*)"\x10\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const desecb_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desecb_vk_cipher_1 = (uint8_t*)"\x95\xA8\xD7\x28\x13\xDA\xA9\x4D";
+uint8_t* const desecb_vk_cipher_2 = (uint8_t*)"\x0E\xEC\x14\x87\xDD\x8C\x26\xD5";
+uint8_t* const desecb_vk_cipher_3 = (uint8_t*)"\x7A\xD1\x6F\xFB\x79\xC4\x59\x26";
+uint8_t* const desecb_vk_cipher_4 = (uint8_t*)"\xD3\x74\x62\x94\xCA\x6A\x6C\xF3";
+
+CIPHERTEST desecb_vk_tests[] = {
+    { "DES-ECB Variable Key", 4, desecb_vk_key_1, nullptr, desecb_vk_plain, desecb_vk_cipher_1, des::recsize },
+    { "DES-ECB Variable Key", 4, desecb_vk_key_2, nullptr, desecb_vk_plain, desecb_vk_cipher_2, des::recsize },
+    { "DES-ECB Variable Key", 4, desecb_vk_key_3, nullptr, desecb_vk_plain, desecb_vk_cipher_3, des::recsize },
+    { "DES-ECB Variable Key", 4, desecb_vk_key_4, nullptr, desecb_vk_plain, desecb_vk_cipher_4, des::recsize }
+};
+
+// DES-ECB permutation operation test vectors
+
+uint8_t* const desecb_po_key_1 = (uint8_t*)"\x10\x46\x91\x34\x89\x98\x01\x31";
+uint8_t* const desecb_po_key_2 = (uint8_t*)"\x10\x07\x10\x34\x89\x98\x80\x20";
+uint8_t* const desecb_po_key_3 = (uint8_t*)"\x10\x07\x10\x34\xC8\x98\x01\x20";
+uint8_t* const desecb_po_key_4 = (uint8_t*)"\x10\x46\x10\x34\x89\x98\x80\x20";
+
+uint8_t* const desecb_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desecb_po_cipher_1 = (uint8_t*)"\x88\xD5\x5E\x54\xF5\x4C\x97\xB4";
+uint8_t* const desecb_po_cipher_2 = (uint8_t*)"\x0C\x0C\xC0\x0C\x83\xEA\x48\xFD";
+uint8_t* const desecb_po_cipher_3 = (uint8_t*)"\x83\xBC\x8E\xF3\xA6\x57\x01\x83";
+uint8_t* const desecb_po_cipher_4 = (uint8_t*)"\xDF\x72\x5D\xCA\xD9\x4E\xA2\xE9";
+
+CIPHERTEST desecb_po_tests[] = {
+    { "DES-ECB Permutation Operation", 4, desecb_po_key_1, nullptr, desecb_po_plain, desecb_po_cipher_1, des::recsize },
+    { "DES-ECB Permutation Operation", 4, desecb_po_key_2, nullptr, desecb_po_plain, desecb_po_cipher_2, des::recsize },
+    { "DES-ECB Permutation Operation", 4, desecb_po_key_3, nullptr, desecb_po_plain, desecb_po_cipher_3, des::recsize },
+    { "DES-ECB Permutaiton Operation", 4, desecb_po_key_4, nullptr, desecb_po_plain, desecb_po_cipher_4, des::recsize }
+};
+
+// DES-ECB substitution table test vectors
+
+uint8_t* const desecb_st_key_1 = (uint8_t*)"\x7C\xA1\x10\x45\x4A\x1A\x6E\x57";
+uint8_t* const desecb_st_key_2 = (uint8_t*)"\x01\x31\xD9\x61\x9D\xC1\x37\x6E";
+uint8_t* const desecb_st_key_3 = (uint8_t*)"\x07\xA1\x13\x3E\x4A\x0B\x26\x86";
+uint8_t* const desecb_st_key_4 = (uint8_t*)"\x38\x49\x67\x4C\x26\x02\x31\x9E";
+
+uint8_t* const desecb_st_plain_1 = (uint8_t*)"\x01\xA1\xD6\xD0\x39\x77\x67\x42";
+uint8_t* const desecb_st_plain_2 = (uint8_t*)"\x5C\xD5\x4C\xA8\x3D\xEF\x57\xDA";
+uint8_t* const desecb_st_plain_3 = (uint8_t*)"\x02\x48\xD4\x38\x06\xF6\x71\x72";
+uint8_t* const desecb_st_plain_4 = (uint8_t*)"\x51\x45\x4B\x58\x2D\xDF\x44\x0A";
+
+uint8_t* const desecb_st_cipher_1 = (uint8_t*)"\x69\x0F\x5B\x0D\x9A\x26\x93\x9B";
+uint8_t* const desecb_st_cipher_2 = (uint8_t*)"\x7A\x38\x9D\x10\x35\x4B\xD2\x71";
+uint8_t* const desecb_st_cipher_3 = (uint8_t*)"\x86\x8E\xBB\x51\xCA\xB4\x59\x9A";
+uint8_t* const desecb_st_cipher_4 = (uint8_t*)"\x71\x78\x87\x6E\x01\xF1\x9B\x2A";
+
+CIPHERTEST desecb_st_tests[] = {
+    { "DES-ECB Substitution Table", 4, desecb_st_key_1, nullptr, desecb_st_plain_1, desecb_st_cipher_1, des::recsize },
+    { "DES-ECB Substitution Table", 4, desecb_st_key_2, nullptr, desecb_st_plain_2, desecb_st_cipher_2, des::recsize },
+    { "DES-ECB Substitution Table", 4, desecb_st_key_3, nullptr, desecb_st_plain_3, desecb_st_cipher_3, des::recsize },
+    { "DES-ECB Substitution Table", 4, desecb_st_key_4, nullptr, desecb_st_plain_4, desecb_st_cipher_4, des::recsize }
+};
+
+// DES-CBC variable plaintext test vectors
+
+uint8_t* const descbc_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const descbc_vp_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_vp_plain_1 = (uint8_t*)"\x08\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const descbc_vp_plain_2 = (uint8_t*)"\x04\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const descbc_vp_plain_3 = (uint8_t*)"\x02\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const descbc_vp_plain_4 = (uint8_t*)"\x01\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_vp_cipher_1 = (uint8_t*)"\x20\xB9\xE7\x67\xB2\xFB\x14\x56";
+uint8_t* const descbc_vp_cipher_2 = (uint8_t*)"\x55\x57\x93\x80\xD7\x71\x38\xEF";
+uint8_t* const descbc_vp_cipher_3 = (uint8_t*)"\x6C\xC5\xDE\xFA\xAF\x04\x51\x2F";
+uint8_t* const descbc_vp_cipher_4 = (uint8_t*)"\x0D\x9F\x27\x9B\xA5\xD8\x72\x60";
+
+CIPHERTEST descbc_vp_tests[] = {
+    { "DES-CBC Variable Plaintext", 4, descbc_vp_key, descbc_vp_iv, descbc_vp_plain_1, descbc_vp_cipher_1, des::recsize },
+    { "DES-CBC Variable Plaintext", 4, descbc_vp_key, descbc_vp_iv, descbc_vp_plain_2, descbc_vp_cipher_2, des::recsize },
+    { "DES-CBC Variable Plaintext", 4, descbc_vp_key, descbc_vp_iv, descbc_vp_plain_3, descbc_vp_cipher_3, des::recsize },
+    { "DES-CBC Variable Plaintext", 4, descbc_vp_key, descbc_vp_iv, descbc_vp_plain_4, descbc_vp_cipher_4, des::recsize }
+};
+
+// DES-CBC inverse permutation test vectors
+
+uint8_t* const descbc_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const descbc_ip_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_ip_plain_1 = (uint8_t*)"\xE7\xFC\xE2\x25\x57\xD2\x3C\x97";
+uint8_t* const descbc_ip_plain_2 = (uint8_t*)"\x12\xA9\xF5\x81\x7F\xF2\xD6\x5D";
+uint8_t* const descbc_ip_plain_3 = (uint8_t*)"\xA4\x84\xC3\xAD\x38\xDC\x9C\x19";
+uint8_t* const descbc_ip_plain_4 = (uint8_t*)"\xFB\xE0\x0A\x8A\x1E\xF8\xAD\x72";
+
+uint8_t* const descbc_ip_cipher_1 = (uint8_t*)"\x00\x00\x08\x00\x00\x00\x00\x00";
+uint8_t* const descbc_ip_cipher_2 = (uint8_t*)"\x00\x00\x04\x00\x00\x00\x00\x00";
+uint8_t* const descbc_ip_cipher_3 = (uint8_t*)"\x00\x00\x02\x00\x00\x00\x00\x00";
+uint8_t* const descbc_ip_cipher_4 = (uint8_t*)"\x00\x00\x01\x00\x00\x00\x00\x00";
+
+CIPHERTEST descbc_ip_tests[] = {
+    { "DES-CBC Inverse Permutation", 4, descbc_ip_key, descbc_ip_iv, descbc_ip_plain_1, descbc_ip_cipher_1, des::recsize },
+    { "DES-CBC Inverse Permutation", 4, descbc_ip_key, descbc_ip_iv, descbc_ip_plain_2, descbc_ip_cipher_2, des::recsize },
+    { "DES-CBC Inverse Permutation", 4, descbc_ip_key, descbc_ip_iv, descbc_ip_plain_3, descbc_ip_cipher_3, des::recsize },
+    { "DES-CBC Inverse Permutation", 4, descbc_ip_key, descbc_ip_iv, descbc_ip_plain_4, descbc_ip_cipher_4, des::recsize }
+};
+
+// DES-CBC variable key test vectors
+
+uint8_t* const descbc_vk_key_1 = (uint8_t*)"\x08\x01\x01\x01\x01\x01\x01\x01";
+uint8_t* const descbc_vk_key_2 = (uint8_t*)"\x04\x01\x01\x01\x01\x01\x01\x01";
+uint8_t* const descbc_vk_key_3 = (uint8_t*)"\x02\x01\x01\x01\x01\x01\x01\x01";
+uint8_t* const descbc_vk_key_4 = (uint8_t*)"\x01\x80\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const descbc_vk_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_vk_cipher_1 = (uint8_t*)"\x80\x9F\x5F\x87\x3C\x1F\xD7\x61";
+uint8_t* const descbc_vk_cipher_2 = (uint8_t*)"\xC0\x2F\xAF\xFE\xC9\x89\xD1\xFC";
+uint8_t* const descbc_vk_cipher_3 = (uint8_t*)"\x46\x15\xAA\x1D\x33\xE7\x2F\x10";
+uint8_t* const descbc_vk_cipher_4 = (uint8_t*)"\x20\x55\x12\x33\x50\xC0\x08\x58";
+
+CIPHERTEST descbc_vk_tests[] = {
+    { "DES-CBC Variable Key", 4, descbc_vk_key_1, descbc_vk_iv, descbc_vk_plain, descbc_vk_cipher_1, des::recsize },
+    { "DES-CBC Variable Key", 4, descbc_vk_key_2, descbc_vk_iv, descbc_vk_plain, descbc_vk_cipher_2, des::recsize },
+    { "DES-CBC Variable Key", 4, descbc_vk_key_3, descbc_vk_iv, descbc_vk_plain, descbc_vk_cipher_3, des::recsize },
+    { "DES-CBC Variable Key", 4, descbc_vk_key_4, descbc_vk_iv, descbc_vk_plain, descbc_vk_cipher_4, des::recsize }
+};
+
+// DES-CBC permutation operation test vectors
+
+uint8_t* const descbc_po_key_1 = (uint8_t*)"\x10\x86\x91\x15\x19\x19\x01\x01";
+uint8_t* const descbc_po_key_2 = (uint8_t*)"\x10\x86\x91\x15\x19\x58\x01\x01";
+uint8_t* const descbc_po_key_3 = (uint8_t*)"\x51\x07\xB0\x15\x19\x58\x01\x01";
+uint8_t* const descbc_po_key_4 = (uint8_t*)"\x10\x07\xB0\x15\x19\x19\x01\x01";
+
+uint8_t* const descbc_po_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_po_cipher_1 = (uint8_t*)"\xE6\x52\xB5\x3B\x55\x0B\xE8\xB0";
+uint8_t* const descbc_po_cipher_2 = (uint8_t*)"\xAF\x52\x71\x20\xC4\x85\xCB\xB0";
+uint8_t* const descbc_po_cipher_3 = (uint8_t*)"\x0F\x04\xCE\x39\x3D\xB9\x26\xD5";
+uint8_t* const descbc_po_cipher_4 = (uint8_t*)"\xC9\xF0\x0F\xFC\x74\x07\x90\x67";
+
+CIPHERTEST descbc_po_tests[] = {
+    { "DES-CBC Permutation Operation", 4, descbc_po_key_1, descbc_po_iv, descbc_po_plain, descbc_po_cipher_1, des::recsize },
+    { "DES-CBC Permutation Operation", 4, descbc_po_key_2, descbc_po_iv, descbc_po_plain, descbc_po_cipher_2, des::recsize },
+    { "DES-CBC Permutation Operation", 4, descbc_po_key_3, descbc_po_iv, descbc_po_plain, descbc_po_cipher_3, des::recsize },
+    { "DES-CBC Permutation Operation", 4, descbc_po_key_4, descbc_po_iv, descbc_po_plain, descbc_po_cipher_4, des::recsize }
+};
+
+// DES-CBC substitution table test vectors
+
+uint8_t* const descbc_st_key_1 = (uint8_t*)"\x04\xB9\x15\xBA\x43\xFE\xB5\xB6";
+uint8_t* const descbc_st_key_2 = (uint8_t*)"\x01\x13\xB9\x70\xFD\x34\xF2\xCE";
+uint8_t* const descbc_st_key_3 = (uint8_t*)"\x01\x70\xF1\x75\x46\x8F\xB5\xE6";
+uint8_t* const descbc_st_key_4 = (uint8_t*)"\x43\x29\x7F\xAD\x38\xE3\x73\xFE";
+
+uint8_t* const descbc_st_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descbc_st_plain_1 = (uint8_t*)"\x42\xFD\x44\x30\x59\x57\x7F\xA2";
+uint8_t* const descbc_st_plain_2 = (uint8_t*)"\x05\x9B\x5E\x08\x51\xCF\x14\x3A";
+uint8_t* const descbc_st_plain_3 = (uint8_t*)"\x07\x56\xD8\xE0\x77\x47\x61\xD2";
+uint8_t* const descbc_st_plain_4 = (uint8_t*)"\x76\x25\x14\xB8\x29\xBF\x48\x6A";
+
+uint8_t* const descbc_st_cipher_1 = (uint8_t*)"\xAF\x37\xFB\x42\x1F\x8C\x40\x95";
+uint8_t* const descbc_st_cipher_2 = (uint8_t*)"\x86\xA5\x60\xF1\x0E\xC6\xD8\x5B";
+uint8_t* const descbc_st_cipher_3 = (uint8_t*)"\x0C\xD3\xDA\x02\x00\x21\xDC\x09";
+uint8_t* const descbc_st_cipher_4 = (uint8_t*)"\xEA\x67\x6B\x2C\xB7\xDB\x2B\x7A";
+
+CIPHERTEST descbc_st_tests[] = {
+    { "DES-CBC Substitution Table", 4, descbc_st_key_1, descbc_st_iv, descbc_st_plain_1, descbc_st_cipher_1, des::recsize },
+    { "DES-CBC Substitution Table", 4, descbc_st_key_2, descbc_st_iv, descbc_st_plain_2, descbc_st_cipher_2, des::recsize },
+    { "DES-CBC Substitution Table", 4, descbc_st_key_3, descbc_st_iv, descbc_st_plain_3, descbc_st_cipher_3, des::recsize },
+    { "DES-CBC Substitution Table", 4, descbc_st_key_4, descbc_st_iv, descbc_st_plain_4, descbc_st_cipher_4, des::recsize }
+};
+
+// DES-CFB variable plaintext test vectors
+
+uint8_t* const descfb_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const descfb_vp_iv_1 = (uint8_t*)"\x00\x80\x00\x00\x00\x00\x00\x00";
+uint8_t* const descfb_vp_iv_2 = (uint8_t*)"\x00\x40\x00\x00\x00\x00\x00\x00";
+uint8_t* const descfb_vp_iv_3 = (uint8_t*)"\x00\x20\x00\x00\x00\x00\x00\x00";
+uint8_t* const descfb_vp_iv_4 = (uint8_t*)"\x00\x10\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_vp_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_vp_cipher_1 = (uint8_t*)"\xD9\x03\x1B\x02\x71\xBD\x5A\x0A";
+uint8_t* const descfb_vp_cipher_2 = (uint8_t*)"\x42\x42\x50\xB3\x7C\x3D\xD9\x51";
+uint8_t* const descfb_vp_cipher_3 = (uint8_t*)"\xB8\x06\x1B\x7E\xCD\x9A\x21\xE5";
+uint8_t* const descfb_vp_cipher_4 = (uint8_t*)"\xF1\x5D\x0F\x28\x6B\x65\xBD\x28";
+
+CIPHERTEST descfb_vp_tests[] = {
+    { "DES-CFB Variable Plaintext", 4, descfb_vp_key, descfb_vp_iv_1, descfb_vp_plain, descfb_vp_cipher_1, des::recsize },
+    { "DES-CFB Variable Plaintext", 4, descfb_vp_key, descfb_vp_iv_2, descfb_vp_plain, descfb_vp_cipher_2, des::recsize },
+    { "DES-CFB Variable Plaintext", 4, descfb_vp_key, descfb_vp_iv_3, descfb_vp_plain, descfb_vp_cipher_3, des::recsize },
+    { "DES-CFB Variable Plaintext", 4, descfb_vp_key, descfb_vp_iv_4, descfb_vp_plain, descfb_vp_cipher_4, des::recsize }
+};
+
+// DES-CFB inverse permutation test vectors
+
+uint8_t* const descfb_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const descfb_ip_iv_1 = (uint8_t*)"\x75\x0D\x07\x94\x07\x52\x13\x63";
+uint8_t* const descfb_ip_iv_2 = (uint8_t*)"\x64\xFE\xED\x9C\x72\x4C\x2F\xAF";
+uint8_t* const descfb_ip_iv_3 = (uint8_t*)"\xF0\x2B\x26\x3B\x32\x8E\x2B\x60";
+uint8_t* const descfb_ip_iv_4 = (uint8_t*)"\x9D\x64\x55\x5A\x9A\x10\xB8\x52";
+
+uint8_t* const descfb_ip_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_ip_cipher_1 = (uint8_t*)"\x00\x00\x00\x80\x00\x00\x00\x00";
+uint8_t* const descfb_ip_cipher_2 = (uint8_t*)"\x00\x00\x00\x40\x00\x00\x00\x00";
+uint8_t* const descfb_ip_cipher_3 = (uint8_t*)"\x00\x00\x00\x20\x00\x00\x00\x00";
+uint8_t* const descfb_ip_cipher_4 = (uint8_t*)"\x00\x00\x00\x10\x00\x00\x00\x00";
+
+CIPHERTEST descfb_ip_tests[] = {
+    { "DES-CFB Inverse Permutation", 4, descfb_ip_key, descfb_ip_iv_1, descfb_ip_plain, descfb_ip_cipher_1, des::recsize },
+    { "DES-CFB Inverse Permutation", 4, descfb_ip_key, descfb_ip_iv_2, descfb_ip_plain, descfb_ip_cipher_2, des::recsize },
+    { "DES-CFB Inverse Permutation", 4, descfb_ip_key, descfb_ip_iv_3, descfb_ip_plain, descfb_ip_cipher_3, des::recsize },
+    { "DES-CFB Inverse Permutation", 4, descfb_ip_key, descfb_ip_iv_4, descfb_ip_plain, descfb_ip_cipher_4, des::recsize }
+};
+
+// DES-CFB variable key test vectors
+
+uint8_t* const descfb_vk_key_1 = (uint8_t*)"\x01\x40\x01\x01\x01\x01\x01\x01";
+uint8_t* const descfb_vk_key_2 = (uint8_t*)"\x01\x20\x01\x01\x01\x01\x01\x01";
+uint8_t* const descfb_vk_key_3 = (uint8_t*)"\x01\x10\x01\x01\x01\x01\x01\x01";
+uint8_t* const descfb_vk_key_4 = (uint8_t*)"\x01\x08\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const descfb_vk_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_vk_cipher_1 = (uint8_t*)"\xDF\x3B\x99\xD6\x57\x73\x97\xC8";
+uint8_t* const descfb_vk_cipher_2 = (uint8_t*)"\x31\xFE\x17\x36\x9B\x52\x88\xC9";
+uint8_t* const descfb_vk_cipher_3 = (uint8_t*)"\xDF\xDD\x3C\xC6\x4D\xAE\x16\x42";
+uint8_t* const descfb_vk_cipher_4 = (uint8_t*)"\x17\x8C\x83\xCE\x2B\x39\x9D\x94";
+
+CIPHERTEST descfb_vk_tests[] = {
+    { "DES-CFB Variable Key", 4, descfb_vk_key_1, descfb_vk_iv, descfb_vk_plain, descfb_vk_cipher_1, des::recsize },
+    { "DES-CFB Variable Key", 4, descfb_vk_key_2, descfb_vk_iv, descfb_vk_plain, descfb_vk_cipher_2, des::recsize },
+    { "DES-CFB Variable Key", 4, descfb_vk_key_3, descfb_vk_iv, descfb_vk_plain, descfb_vk_cipher_3, des::recsize },
+    { "DES-CFB Variable Key", 4, descfb_vk_key_4, descfb_vk_iv, descfb_vk_plain, descfb_vk_cipher_4, des::recsize }
+};
+
+// DES-CFB permutation operation test vectors
+
+uint8_t* const descfb_po_key_1 = (uint8_t*)"\x31\x07\x91\x54\x98\x08\x01\x01";
+uint8_t* const descfb_po_key_2 = (uint8_t*)"\x31\x07\x91\x94\x98\x08\x01\x01";
+uint8_t* const descfb_po_key_3 = (uint8_t*)"\x10\x07\x91\x15\xB9\x08\x01\x40";
+uint8_t* const descfb_po_key_4 = (uint8_t*)"\x31\x07\x91\x15\x98\x08\x01\x40";
+
+uint8_t* const descfb_po_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_po_cipher_1 = (uint8_t*)"\x7C\xFD\x82\xA5\x93\x25\x2B\x4E";
+uint8_t* const descfb_po_cipher_2 = (uint8_t*)"\xCB\x49\xA2\xF9\xE9\x13\x63\xE3";
+uint8_t* const descfb_po_cipher_3 = (uint8_t*)"\x00\xB5\x88\xBE\x70\xD2\x3F\x56";
+uint8_t* const descfb_po_cipher_4 = (uint8_t*)"\x40\x6A\x9A\x6A\xB4\x33\x99\xAE";
+
+CIPHERTEST descfb_po_tests[] = {
+    { "DES-CFB Permutation Operation", 4, descfb_po_key_1, descfb_po_iv, descfb_po_plain, descfb_po_cipher_1, des::recsize },
+    { "DES-CFB Permutation Operation", 4, descfb_po_key_2, descfb_po_iv, descfb_po_plain, descfb_po_cipher_2, des::recsize },
+    { "DES-CFB Permutation Operation", 4, descfb_po_key_3, descfb_po_iv, descfb_po_plain, descfb_po_cipher_3, des::recsize },
+    { "DES-CFB Permutation Operation", 4, descfb_po_key_4, descfb_po_iv, descfb_po_plain, descfb_po_cipher_4, des::recsize }
+};
+
+// DES-CFB substitution table test vectors
+
+uint8_t* const descfb_st_key_1 = (uint8_t*)"\x07\xA7\x13\x70\x45\xDA\x2A\x16";
+uint8_t* const descfb_st_key_2 = (uint8_t*)"\x04\x68\x91\x04\xC2\xFD\x3B\x2F";
+uint8_t* const descfb_st_key_3 = (uint8_t*)"\x37\xD0\x6B\xB5\x16\xCB\x75\x46";
+uint8_t* const descfb_st_key_4 = (uint8_t*)"\x1F\x08\x26\x0D\x1A\xC2\x46\x5E";
+
+uint8_t* const descfb_st_iv_1 = (uint8_t*)"\x3B\xDD\x11\x90\x49\x37\x28\x02";
+uint8_t* const descfb_st_iv_2 = (uint8_t*)"\x26\x95\x5F\x68\x35\xAF\x60\x9A";
+uint8_t* const descfb_st_iv_3 = (uint8_t*)"\x16\x4D\x5E\x40\x4F\x27\x52\x32";
+uint8_t* const descfb_st_iv_4 = (uint8_t*)"\x6B\x05\x6E\x18\x75\x9F\x5C\xCA";
+
+uint8_t* const descfb_st_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const descfb_st_cipher_1 = (uint8_t*)"\xDF\xD6\x4A\x81\x5C\xAF\x1A\x0F";
+uint8_t* const descfb_st_cipher_2 = (uint8_t*)"\x5C\x51\x3C\x9C\x48\x86\xC0\x88";
+uint8_t* const descfb_st_cipher_3 = (uint8_t*)"\x0A\x2A\xEE\xAE\x3F\xF4\xAB\x77";
+uint8_t* const descfb_st_cipher_4 = (uint8_t*)"\xEF\x1B\xF0\x3E\x5D\xFA\x57\x5A";
+
+CIPHERTEST descfb_st_tests[] = {
+    { "DES-CFB Substitution Table", 4, descfb_st_key_1, descfb_st_iv_1, descfb_st_plain, descfb_st_cipher_1, des::recsize },
+    { "DES-CFB Substitution Table", 4, descfb_st_key_2, descfb_st_iv_2, descfb_st_plain, descfb_st_cipher_2, des::recsize },
+    { "DES-CFB Substitution Table", 4, descfb_st_key_3, descfb_st_iv_3, descfb_st_plain, descfb_st_cipher_3, des::recsize },
+    { "DES-CFB Substitution Table", 4, descfb_st_key_4, descfb_st_iv_4, descfb_st_plain, descfb_st_cipher_4, des::recsize }
+};
+
+// DES-OFB variable plaintext test vectors
+
+uint8_t* const desofb_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const desofb_vp_iv_1 = (uint8_t*)"\x00\x08\x00\x00\x00\x00\x00\x00";
+uint8_t* const desofb_vp_iv_2 = (uint8_t*)"\x00\x04\x00\x00\x00\x00\x00\x00";
+uint8_t* const desofb_vp_iv_3 = (uint8_t*)"\x00\x02\x00\x00\x00\x00\x00\x00";
+uint8_t* const desofb_vp_iv_4 = (uint8_t*)"\x00\x01\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_vp_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_vp_cipher_1 = (uint8_t*)"\xAD\xD0\xCC\x8D\x6E\x5D\xEB\xA1";
+uint8_t* const desofb_vp_cipher_2 = (uint8_t*)"\xE6\xD5\xF8\x27\x52\xAD\x63\xD1";
+uint8_t* const desofb_vp_cipher_3 = (uint8_t*)"\xEC\xBF\xE3\xBD\x3F\x59\x1A\x5E";
+uint8_t* const desofb_vp_cipher_4 = (uint8_t*)"\xF3\x56\x83\x43\x79\xD1\x65\xCD";
+
+CIPHERTEST desofb_vp_tests[] = {
+    { "DES-OFB Variable Plaintext", 4, desofb_vp_key, desofb_vp_iv_1, desofb_vp_plain, desofb_vp_cipher_1, des::recsize },
+    { "DES-OFB Variable Plaintext", 4, desofb_vp_key, desofb_vp_iv_2, desofb_vp_plain, desofb_vp_cipher_2, des::recsize },
+    { "DES-OFB Variable Plaintext", 4, desofb_vp_key, desofb_vp_iv_3, desofb_vp_plain, desofb_vp_cipher_3, des::recsize },
+    { "DES-OFB Variable Plaintext", 4, desofb_vp_key, desofb_vp_iv_4, desofb_vp_plain, desofb_vp_cipher_4, des::recsize }
+};
+
+// DES-OFB inverse permutation test vectors
+
+uint8_t* const desofb_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const desofb_ip_iv_1 = (uint8_t*)"\xD1\x06\xFF\x0B\xED\x52\x55\xD7";
+uint8_t* const desofb_ip_iv_2 = (uint8_t*)"\xE1\x65\x2C\x6B\x13\x8C\x64\xA5";
+uint8_t* const desofb_ip_iv_3 = (uint8_t*)"\xE4\x28\x58\x11\x86\xEC\x8F\x46";
+uint8_t* const desofb_ip_iv_4 = (uint8_t*)"\xAE\xB5\xF5\xED\xE2\x2D\x1A\x36";
+
+uint8_t* const desofb_ip_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_ip_cipher_1 = (uint8_t*)"\x00\x00\x00\x08\x00\x00\x00\x00";
+uint8_t* const desofb_ip_cipher_2 = (uint8_t*)"\x00\x00\x00\x04\x00\x00\x00\x00";
+uint8_t* const desofb_ip_cipher_3 = (uint8_t*)"\x00\x00\x00\x02\x00\x00\x00\x00";
+uint8_t* const desofb_ip_cipher_4 = (uint8_t*)"\x00\x00\x00\x01\x00\x00\x00\x00";
+
+CIPHERTEST desofb_ip_tests[] = {
+    { "DES-OFB Inverse Permutation", 4, desofb_ip_key, desofb_ip_iv_1, desofb_ip_plain, desofb_ip_cipher_1, des::recsize },
+    { "DES-OFB Inverse Permutation", 4, desofb_ip_key, desofb_ip_iv_2, desofb_ip_plain, desofb_ip_cipher_2, des::recsize },
+    { "DES-OFB Inverse Permutation", 4, desofb_ip_key, desofb_ip_iv_3, desofb_ip_plain, desofb_ip_cipher_3, des::recsize },
+    { "DES-OFB Inverse Permutation", 4, desofb_ip_key, desofb_ip_iv_4, desofb_ip_plain, desofb_ip_cipher_4, des::recsize }
+};
+
+// DES-OFB variable key test vectors
+
+uint8_t* const desofb_vk_key_1 = (uint8_t*)"\x01\x04\x01\x01\x01\x01\x01\x01";
+uint8_t* const desofb_vk_key_2 = (uint8_t*)"\x01\x02\x01\x01\x01\x01\x01\x01";
+uint8_t* const desofb_vk_key_3 = (uint8_t*)"\x01\x01\x80\x01\x01\x01\x01\x01";
+uint8_t* const desofb_vk_key_4 = (uint8_t*)"\x01\x01\x40\x01\x01\x01\x01\x01";
+
+uint8_t* const desofb_vk_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_vk_cipher_1 = (uint8_t*)"\x50\xF6\x36\x32\x4A\x9B\x7F\x80";
+uint8_t* const desofb_vk_cipher_2 = (uint8_t*)"\xA8\x46\x8E\xE3\xBC\x18\xF0\x6D";
+uint8_t* const desofb_vk_cipher_3 = (uint8_t*)"\xA2\xDC\x9E\x92\xFD\x3C\xDE\x92";
+uint8_t* const desofb_vk_cipher_4 = (uint8_t*)"\xCA\xC0\x9F\x79\x7D\x03\x12\x87";
+
+CIPHERTEST desofb_vk_tests[] = {
+    { "DES-OFB Variable Key", 4, desofb_vk_key_1, desofb_vk_iv, desofb_vk_plain, desofb_vk_cipher_1, des::recsize },
+    { "DES-OFB Variable Key", 4, desofb_vk_key_2, desofb_vk_iv, desofb_vk_plain, desofb_vk_cipher_2, des::recsize },
+    { "DES-OFB Variable Key", 4, desofb_vk_key_3, desofb_vk_iv, desofb_vk_plain, desofb_vk_cipher_3, des::recsize },
+    { "DES-OFB Variable Key", 4, desofb_vk_key_4, desofb_vk_iv, desofb_vk_plain, desofb_vk_cipher_4, des::recsize }
+};
+
+// DES-OFB permutation operation test vectors
+
+uint8_t* const desofb_po_key_1 = (uint8_t*)"\x10\x07\xD0\x15\x89\x98\x01\x01";
+uint8_t* const desofb_po_key_2 = (uint8_t*)"\x91\x07\x91\x15\x89\x98\x01\x01";
+uint8_t* const desofb_po_key_3 = (uint8_t*)"\x91\x07\xD0\x15\x89\x19\x01\x01";
+uint8_t* const desofb_po_key_4 = (uint8_t*)"\x10\x07\xD0\x15\x98\x98\x01\x20";
+
+uint8_t* const desofb_po_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_po_cipher_1 = (uint8_t*)"\x6C\xB7\x73\x61\x1D\xCA\x9A\xDA";
+uint8_t* const desofb_po_cipher_2 = (uint8_t*)"\x67\xFD\x21\xC1\x7D\xBB\x5D\x70";
+uint8_t* const desofb_po_cipher_3 = (uint8_t*)"\x95\x92\xCB\x41\x10\x43\x07\x87";
+uint8_t* const desofb_po_cipher_4 = (uint8_t*)"\xA6\xB7\xFF\x68\xA3\x18\xDD\xD3";
+
+CIPHERTEST desofb_po_tests[] = {
+    { "DES-OFB Permutation Operation", 4, desofb_po_key_1, desofb_po_iv, desofb_po_plain, desofb_po_cipher_1, des::recsize },
+    { "DES-OFB Permutation Operation", 4, desofb_po_key_2, desofb_po_iv, desofb_po_plain, desofb_po_cipher_2, des::recsize },
+    { "DES-OFB Permutation Operation", 4, desofb_po_key_3, desofb_po_iv, desofb_po_plain, desofb_po_cipher_3, des::recsize },
+    { "DES-OFB Permutation Operation", 4, desofb_po_key_4, desofb_po_iv, desofb_po_plain, desofb_po_cipher_4, des::recsize }
+};
+
+// DES-OFB substitution table test vectors
+
+uint8_t* const desofb_st_key_1 = (uint8_t*)"\x58\x40\x23\x64\x1A\xBA\x61\x76";
+uint8_t* const desofb_st_key_2 = (uint8_t*)"\x02\x58\x16\x16\x46\x29\xB0\x07";
+uint8_t* const desofb_st_key_3 = (uint8_t*)"\x49\x79\x3E\xBC\x79\xB3\x25\x8F";
+uint8_t* const desofb_st_key_4 = (uint8_t*)"\x4F\xB0\x5E\x15\x15\xAB\x73\xA7";
+
+uint8_t* const desofb_st_iv_1 = (uint8_t*)"\x00\x4B\xD6\xEF\x09\x17\x60\x62";
+uint8_t* const desofb_st_iv_2 = (uint8_t*)"\x48\x0D\x39\x00\x6E\xE7\x62\xF2";
+uint8_t* const desofb_st_iv_3 = (uint8_t*)"\x43\x75\x40\xC8\x69\x8F\x3C\xFA";
+uint8_t* const desofb_st_iv_4 = (uint8_t*)"\x07\x2D\x43\xA0\x77\x07\x52\x92";
+
+uint8_t* const desofb_st_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const desofb_st_cipher_1 = (uint8_t*)"\x88\xBF\x0D\xB6\xD7\x0D\xEE\x56";
+uint8_t* const desofb_st_cipher_2 = (uint8_t*)"\xA1\xF9\x91\x55\x41\x02\x0B\x56";
+uint8_t* const desofb_st_cipher_3 = (uint8_t*)"\x6F\xBF\x1C\xAF\xCF\xFD\x05\x56";
+uint8_t* const desofb_st_cipher_4 = (uint8_t*)"\x2F\x22\xE4\x9B\xAB\x7C\xA1\xAC";
+
+CIPHERTEST desofb_st_tests[] = {
+    { "DES-OFB Substitution Table", 4, desofb_st_key_1, desofb_st_iv_1, desofb_st_plain, desofb_st_cipher_1, des::recsize },
+    { "DES-OFB Substitution Table", 4, desofb_st_key_2, desofb_st_iv_2, desofb_st_plain, desofb_st_cipher_2, des::recsize },
+    { "DES-OFB Substitution Table", 4, desofb_st_key_3, desofb_st_iv_3, desofb_st_plain, desofb_st_cipher_3, des::recsize },
+    { "DES-OFB Substitution Table", 4, desofb_st_key_4, desofb_st_iv_4, desofb_st_plain, desofb_st_cipher_4, des::recsize }
+};
+
+// DES-EDE-ECB variable plaintext test vectors
+
+uint8_t* const des3ecb_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3ecb_vp_plain_1 = (uint8_t*)"\x00\x00\x00\x00\x80\x00\x00\x00";
+uint8_t* const des3ecb_vp_plain_2 = (uint8_t*)"\x00\x00\x00\x00\x40\x00\x00\x00";
+uint8_t* const des3ecb_vp_plain_3 = (uint8_t*)"\x00\x00\x00\x00\x20\x00\x00\x00";
+uint8_t* const des3ecb_vp_plain_4 = (uint8_t*)"\x00\x00\x00\x00\x10\x00\x00\x00";
+
+uint8_t* const des3ecb_vp_cipher_1 = (uint8_t*)"\xE9\x43\xD7\x56\x8A\xEC\x0C\x5C";
+uint8_t* const des3ecb_vp_cipher_2 = (uint8_t*)"\xDF\x98\xC8\x27\x6F\x54\xB0\x4B";
+uint8_t* const des3ecb_vp_cipher_3 = (uint8_t*)"\xB1\x60\xE4\x68\x0F\x6C\x69\x6F";
+uint8_t* const des3ecb_vp_cipher_4 = (uint8_t*)"\xFA\x07\x52\xB0\x7D\x9C\x4A\xB8";
+
+CIPHERTEST des3ecb_vp_tests[] = {
+    { "DES-EDE-ECB Variable Plaintext", 4, des3ecb_vp_key, nullptr, des3ecb_vp_plain_1, des3ecb_vp_cipher_1, des3::recsize },
+    { "DES-EDE-ECB Variable Plaintext", 4, des3ecb_vp_key, nullptr, des3ecb_vp_plain_2, des3ecb_vp_cipher_2, des3::recsize },
+    { "DES-EDE-ECB Variable Plaintext", 4, des3ecb_vp_key, nullptr, des3ecb_vp_plain_3, des3ecb_vp_cipher_3, des3::recsize },
+    { "DES-EDE-ECB Variable Plaintext", 4, des3ecb_vp_key, nullptr, des3ecb_vp_plain_4, des3ecb_vp_cipher_4, des3::recsize }
+};
+
+// DES-EDE-ECB inverse permutation test vectors
+
+uint8_t* const des3ecb_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3ecb_ip_plain_1 = (uint8_t*)"\x10\x29\xD5\x5E\x88\x0E\xC2\xD0";
+uint8_t* const des3ecb_ip_plain_2 = (uint8_t*)"\x5D\x86\xCB\x23\x63\x9D\xBE\xA9";
+uint8_t* const des3ecb_ip_plain_3 = (uint8_t*)"\x1D\x1C\xA8\x53\xAE\x7C\x0C\x5F";
+uint8_t* const des3ecb_ip_plain_4 = (uint8_t*)"\xCE\x33\x23\x29\x24\x8F\x32\x28";
+
+uint8_t* const des3ecb_ip_cipher_1 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x80\x00";
+uint8_t* const des3ecb_ip_cipher_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x40\x00";
+uint8_t* const des3ecb_ip_cipher_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x20\x00";
+uint8_t* const des3ecb_ip_cipher_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x10\x00";
+
+CIPHERTEST des3ecb_ip_tests[] = {
+    { "DES-EDE-ECB Inverse Permutation", 4, des3ecb_ip_key, nullptr, des3ecb_ip_plain_1, des3ecb_ip_cipher_1, des3::recsize },
+    { "DES-EDE-ECB Inverse Permutation", 4, des3ecb_ip_key, nullptr, des3ecb_ip_plain_2, des3ecb_ip_cipher_2, des3::recsize },
+    { "DES-EDE-ECB Inverse Permutation", 4, des3ecb_ip_key, nullptr, des3ecb_ip_plain_3, des3ecb_ip_cipher_3, des3::recsize },
+    { "DES-EDE-ECB Inverse Permutation", 4, des3ecb_ip_key, nullptr, des3ecb_ip_plain_4, des3ecb_ip_cipher_4, des3::recsize }
+};
+
+// DES-EDE-ECB variable key test vectors
+
+uint8_t* const des3ecb_vk_key_1 = (uint8_t*)"\x01\x01\x20\x01\x01\x01\x01\x01\x01\x01\x20\x01\x01\x01\x01\x01\x01\x01\x20\x01\x01\x01\x01\x01";
+uint8_t* const des3ecb_vk_key_2 = (uint8_t*)"\x01\x01\x10\x01\x01\x01\x01\x01\x01\x01\x10\x01\x01\x01\x01\x01\x01\x01\x10\x01\x01\x01\x01\x01";
+uint8_t* const des3ecb_vk_key_3 = (uint8_t*)"\x01\x01\x08\x01\x01\x01\x01\x01\x01\x01\x08\x01\x01\x01\x01\x01\x01\x01\x08\x01\x01\x01\x01\x01";
+uint8_t* const des3ecb_vk_key_4 = (uint8_t*)"\x01\x01\x04\x01\x01\x01\x01\x01\x01\x01\x04\x01\x01\x01\x01\x01\x01\x01\x04\x01\x01\x01\x01\x01";
+
+uint8_t* const des3ecb_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ecb_vk_cipher_1 = (uint8_t*)"\x90\xBA\x68\x0B\x22\xAE\xB5\x25";
+uint8_t* const des3ecb_vk_cipher_2 = (uint8_t*)"\xCE\x7A\x24\xF3\x50\xE2\x80\xB6";
+uint8_t* const des3ecb_vk_cipher_3 = (uint8_t*)"\x88\x2B\xFF\x0A\xA0\x1A\x0B\x87";
+uint8_t* const des3ecb_vk_cipher_4 = (uint8_t*)"\x25\x61\x02\x88\x92\x45\x11\xC2";
+
+CIPHERTEST des3ecb_vk_tests[] = {
+    { "DES-EDE-ECB Variable Key", 4, des3ecb_vk_key_1, nullptr, des3ecb_vk_plain, des3ecb_vk_cipher_1, des3::recsize },
+    { "DES-EDE-ECB Variable Key", 4, des3ecb_vk_key_2, nullptr, des3ecb_vk_plain, des3ecb_vk_cipher_2, des3::recsize },
+    { "DES-EDE-ECB Variable Key", 4, des3ecb_vk_key_3, nullptr, des3ecb_vk_plain, des3ecb_vk_cipher_3, des3::recsize },
+    { "DES-EDE-ECB Variable Key", 4, des3ecb_vk_key_4, nullptr, des3ecb_vk_plain, des3ecb_vk_cipher_4, des3::recsize }
+};
+
+// DES-EDE-ECB permutation operation test vectors
+
+uint8_t* const des3ecb_po_key_1 = (uint8_t*)"\x10\x07\x94\x04\x98\x19\x01\x01\x10\x07\x94\x04\x98\x19\x01\x01\x10\x07\x94\x04\x98\x19\x01\x01";
+uint8_t* const des3ecb_po_key_2 = (uint8_t*)"\x01\x07\x91\x04\x91\x19\x04\x01\x01\x07\x91\x04\x91\x19\x04\x01\x01\x07\x91\x04\x91\x19\x04\x01";
+uint8_t* const des3ecb_po_key_3 = (uint8_t*)"\x01\x07\x91\x04\x91\x19\x01\x01\x01\x07\x91\x04\x91\x19\x01\x01\x01\x07\x91\x04\x91\x19\x01\x01";
+uint8_t* const des3ecb_po_key_4 = (uint8_t*)"\x01\x07\x94\x04\x91\x19\x04\x01\x01\x07\x94\x04\x91\x19\x04\x01\x01\x07\x94\x04\x91\x19\x04\x01";
+
+uint8_t* const des3ecb_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ecb_po_cipher_1 = (uint8_t*)"\x4D\x10\x21\x96\xC9\x14\xCA\x16";
+uint8_t* const des3ecb_po_cipher_2 = (uint8_t*)"\x2D\xFA\x9F\x45\x73\x59\x49\x65";
+uint8_t* const des3ecb_po_cipher_3 = (uint8_t*)"\xB4\x66\x04\x81\x6C\x0E\x07\x74";
+uint8_t* const des3ecb_po_cipher_4 = (uint8_t*)"\x6E\x7E\x62\x21\xA4\xF3\x4E\x87";
+
+CIPHERTEST des3ecb_po_tests[] = {
+    { "DES-EDE-ECB Permutation Operation", 4, des3ecb_po_key_1, nullptr, des3ecb_po_plain, des3ecb_po_cipher_1, des3::recsize },
+    { "DES-EDE-ECB Permutation Operation", 4, des3ecb_po_key_2, nullptr, des3ecb_po_plain, des3ecb_po_cipher_2, des3::recsize },
+    { "DES-EDE-ECB Permutation Operation", 4, des3ecb_po_key_3, nullptr, des3ecb_po_plain, des3ecb_po_cipher_3, des3::recsize },
+    { "DES-EDE-ECB Permutation Operation", 4, des3ecb_po_key_4, nullptr, des3ecb_po_plain, des3ecb_po_cipher_4, des3::recsize }
+};
+
+// DES-EDE-ECB substitution table test vectors
+
+uint8_t* const des3ecb_st_key_1 = (uint8_t*)"\x7C\xA1\x10\x45\x4A\x1A\x6E\x57\x7C\xA1\x10\x45\x4A\x1A\x6E\x57\x7C\xA1\x10\x45\x4A\x1A\x6E\x57";
+uint8_t* const des3ecb_st_key_2 = (uint8_t*)"\x01\x31\xD9\x61\x9D\xC1\x37\x6E\x01\x31\xD9\x61\x9D\xC1\x37\x6E\x01\x31\xD9\x61\x9D\xC1\x37\x6E";
+uint8_t* const des3ecb_st_key_3 = (uint8_t*)"\x07\xA1\x13\x3E\x4A\x0B\x26\x86\x07\xA1\x13\x3E\x4A\x0B\x26\x86\x07\xA1\x13\x3E\x4A\x0B\x26\x86";
+uint8_t* const des3ecb_st_key_4 = (uint8_t*)"\x38\x49\x67\x4C\x26\x02\x31\x9E\x38\x49\x67\x4C\x26\x02\x31\x9E\x38\x49\x67\x4C\x26\x02\x31\x9E";
+
+uint8_t* const des3ecb_st_plain_1 = (uint8_t*)"\x01\xA1\xD6\xD0\x39\x77\x67\x42";
+uint8_t* const des3ecb_st_plain_2 = (uint8_t*)"\x5C\xD5\x4C\xA8\x3D\xEF\x57\xDA";
+uint8_t* const des3ecb_st_plain_3 = (uint8_t*)"\x02\x48\xD4\x38\x06\xF6\x71\x72";
+uint8_t* const des3ecb_st_plain_4 = (uint8_t*)"\x51\x45\x4B\x58\x2D\xDF\x44\x0A";
+
+uint8_t* const des3ecb_st_cipher_1 = (uint8_t*)"\x69\x0F\x5B\x0D\x9A\x26\x93\x9B";
+uint8_t* const des3ecb_st_cipher_2 = (uint8_t*)"\x7A\x38\x9D\x10\x35\x4B\xD2\x71";
+uint8_t* const des3ecb_st_cipher_3 = (uint8_t*)"\x86\x8E\xBB\x51\xCA\xB4\x59\x9A";
+uint8_t* const des3ecb_st_cipher_4 = (uint8_t*)"\x71\x78\x87\x6E\x01\xF1\x9B\x2A";
+
+CIPHERTEST des3ecb_st_tests[] = {
+    { "DES-EDE-ECB Substitution Table", 4, des3ecb_st_key_1, nullptr, des3ecb_st_plain_1, des3ecb_st_cipher_1, des3::recsize },
+    { "DES-EDE-ECB Substitution Table", 4, des3ecb_st_key_2, nullptr, des3ecb_st_plain_2, des3ecb_st_cipher_2, des3::recsize },
+    { "DES-EDE-ECB Substitution Table", 4, des3ecb_st_key_3, nullptr, des3ecb_st_plain_3, des3ecb_st_cipher_3, des3::recsize },
+    { "DES-EDE-ECB Substitution Table", 4, des3ecb_st_key_4, nullptr, des3ecb_st_plain_4, des3ecb_st_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CBC variable plaintext test vectors
+
+uint8_t* const des3cbc_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3cbc_vp_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cbc_vp_plain_1 = (uint8_t*)"\x00\x00\x00\x00\x08\x00\x00\x00";
+uint8_t* const des3cbc_vp_plain_2 = (uint8_t*)"\x00\x00\x00\x00\x04\x00\x00\x00";
+uint8_t* const des3cbc_vp_plain_3 = (uint8_t*)"\x00\x00\x00\x00\x02\x00\x00\x00";
+uint8_t* const des3cbc_vp_plain_4 = (uint8_t*)"\x00\x00\x00\x00\x01\x00\x00\x00";
+
+uint8_t* const des3cbc_vp_cipher_1 = (uint8_t*)"\xCA\x3A\x2B\x03\x6D\xBC\x85\x02";
+uint8_t* const des3cbc_vp_cipher_2 = (uint8_t*)"\x5E\x09\x05\x51\x7B\xB5\x9B\xCF";
+uint8_t* const des3cbc_vp_cipher_3 = (uint8_t*)"\x81\x4E\xEB\x3B\x91\xD9\x07\x26";
+uint8_t* const des3cbc_vp_cipher_4 = (uint8_t*)"\x4D\x49\xDB\x15\x32\x91\x9C\x9F";
+
+CIPHERTEST des3cbc_vp_tests[] = {
+    { "DES-EDE-CBC Variable Plaintext", 4, des3cbc_vp_key, des3cbc_vp_iv, des3cbc_vp_plain_1, des3cbc_vp_cipher_1, des3::recsize },
+    { "DES-EDE-CBC Variable Plaintext", 4, des3cbc_vp_key, des3cbc_vp_iv, des3cbc_vp_plain_2, des3cbc_vp_cipher_2, des3::recsize },
+    { "DES-EDE-CBC Variable Plaintext", 4, des3cbc_vp_key, des3cbc_vp_iv, des3cbc_vp_plain_3, des3cbc_vp_cipher_3, des3::recsize },
+    { "DES-EDE-CBC Variable Plaintext", 4, des3cbc_vp_key, des3cbc_vp_iv, des3cbc_vp_plain_4, des3cbc_vp_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CBC inverse permutation test vectors
+
+uint8_t* const des3cbc_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3cbc_ip_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cbc_ip_plain_1 = (uint8_t*)"\x84\x05\xD1\xAB\xE2\x4F\xB9\x42";
+uint8_t* const des3cbc_ip_plain_2 = (uint8_t*)"\xE6\x43\xD7\x80\x90\xCA\x42\x07";
+uint8_t* const des3cbc_ip_plain_3 = (uint8_t*)"\x48\x22\x1B\x99\x37\x74\x8A\x23";
+uint8_t* const des3cbc_ip_plain_4 = (uint8_t*)"\xDD\x7C\x0B\xBD\x61\xFA\xFD\x54";
+
+uint8_t* const des3cbc_ip_cipher_1 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x08\x00";
+uint8_t* const des3cbc_ip_cipher_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x04\x00";
+uint8_t* const des3cbc_ip_cipher_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x02\x00";
+uint8_t* const des3cbc_ip_cipher_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x01\x00";
+
+CIPHERTEST des3cbc_ip_tests[] = {
+    { "DES-EDE-CBC Inverse Permutation", 4, des3cbc_ip_key, des3cbc_ip_iv, des3cbc_ip_plain_1, des3cbc_ip_cipher_1, des3::recsize },
+    { "DES-EDE-CBC Inverse Permutation", 4, des3cbc_ip_key, des3cbc_ip_iv, des3cbc_ip_plain_2, des3cbc_ip_cipher_2, des3::recsize },
+    { "DES-EDE-CBC Inverse Permutation", 4, des3cbc_ip_key, des3cbc_ip_iv, des3cbc_ip_plain_3, des3cbc_ip_cipher_3, des3::recsize },
+    { "DES-EDE-CBC Inverse Permutation", 4, des3cbc_ip_key, des3cbc_ip_iv, des3cbc_ip_plain_4, des3cbc_ip_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CBC variable key test vectors
+
+uint8_t* const des3cbc_vk_key_1 = (uint8_t*)"\x01\x01\x02\x01\x01\x01\x01\x01\x01\x01\x02\x01\x01\x01\x01\x01\x01\x01\x02\x01\x01\x01\x01\x01";
+uint8_t* const des3cbc_vk_key_2 = (uint8_t*)"\x01\x01\x01\x80\x01\x01\x01\x01\x01\x01\x01\x80\x01\x01\x01\x01\x01\x01\x01\x80\x01\x01\x01\x01";
+uint8_t* const des3cbc_vk_key_3 = (uint8_t*)"\x01\x01\x01\x40\x01\x01\x01\x01\x01\x01\x01\x40\x01\x01\x01\x01\x01\x01\x01\x40\x01\x01\x01\x01";
+uint8_t* const des3cbc_vk_key_4 = (uint8_t*)"\x01\x01\x01\x20\x01\x01\x01\x01\x01\x01\x01\x20\x01\x01\x01\x01\x01\x01\x01\x20\x01\x01\x01\x01";
+
+uint8_t* const des3cbc_vk_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cbc_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cbc_vk_cipher_1 = (uint8_t*)"\xC7\x15\x16\xC2\x9C\x75\xD1\x70";
+uint8_t* const des3cbc_vk_cipher_2 = (uint8_t*)"\x51\x99\xC2\x9A\x52\xC9\xF0\x59";
+uint8_t* const des3cbc_vk_cipher_3 = (uint8_t*)"\xC2\x2F\x0A\x29\x4A\x71\xF2\x9F";
+uint8_t* const des3cbc_vk_cipher_4 = (uint8_t*)"\xEE\x37\x14\x83\x71\x4C\x02\xEA";
+
+CIPHERTEST des3cbc_vk_tests[] = {
+    { "DES-EDE-CBC Variable Key", 4, des3cbc_vk_key_1, des3cbc_vk_iv, des3cbc_vk_plain, des3cbc_vk_cipher_1, des3::recsize },
+    { "DES-EDE-CBC Variable Key", 4, des3cbc_vk_key_2, des3cbc_vk_iv, des3cbc_vk_plain, des3cbc_vk_cipher_2, des3::recsize },
+    { "DES-EDE-CBC Variable Key", 4, des3cbc_vk_key_3, des3cbc_vk_iv, des3cbc_vk_plain, des3cbc_vk_cipher_3, des3::recsize },
+    { "DES-EDE-CBC Variable Key", 4, des3cbc_vk_key_4, des3cbc_vk_iv, des3cbc_vk_plain, des3cbc_vk_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CBC permutation operation test vectors
+
+uint8_t* const des3cbc_po_key_1 = (uint8_t*)"\x19\x07\x92\x10\x98\x1A\x01\x01\x19\x07\x92\x10\x98\x1A\x01\x01\x19\x07\x92\x10\x98\x1A\x01\x01";
+uint8_t* const des3cbc_po_key_2 = (uint8_t*)"\x10\x07\x91\x19\x98\x19\x08\x01\x10\x07\x91\x19\x98\x19\x08\x01\x10\x07\x91\x19\x98\x19\x08\x01";
+uint8_t* const des3cbc_po_key_3 = (uint8_t*)"\x10\x07\x91\x19\x98\x1A\x08\x01\x10\x07\x91\x19\x98\x1A\x08\x01\x10\x07\x91\x19\x98\x1A\x08\x01";
+uint8_t* const des3cbc_po_key_4 = (uint8_t*)"\x10\x07\x92\x10\x98\x19\x01\x01\x10\x07\x92\x10\x98\x19\x01\x01\x10\x07\x92\x10\x98\x19\x01\x01";
+
+uint8_t* const des3cbc_po_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cbc_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cbc_po_cipher_1 = (uint8_t*)"\xAA\x85\xE7\x46\x43\x23\x31\x99";
+uint8_t* const des3cbc_po_cipher_2 = (uint8_t*)"\x2E\x5A\x19\xDB\x4D\x19\x62\xD6";
+uint8_t* const des3cbc_po_cipher_3 = (uint8_t*)"\x23\xA8\x66\xA8\x09\xD3\x08\x94";
+uint8_t* const des3cbc_po_cipher_4 = (uint8_t*)"\xD8\x12\xD9\x61\xF0\x17\xD3\x20";
+
+CIPHERTEST des3cbc_po_tests[] = {
+    { "DES-EDE-CBC Permutation Operation", 4, des3cbc_po_key_1, des3cbc_po_iv, des3cbc_po_plain, des3cbc_po_cipher_1, des3::recsize },
+    { "DES-EDE-CBC Permutation Operation", 4, des3cbc_po_key_2, des3cbc_po_iv, des3cbc_po_plain, des3cbc_po_cipher_2, des3::recsize },
+    { "DES-EDE-CBC Permutation Operation", 4, des3cbc_po_key_3, des3cbc_po_iv, des3cbc_po_plain, des3cbc_po_cipher_3, des3::recsize },
+    { "DES-EDE-CBC Permutation Operation", 4, des3cbc_po_key_4, des3cbc_po_iv, des3cbc_po_plain, des3cbc_po_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CBC substitution table test vectors
+
+uint8_t* const des3cbc_st_key_1 = (uint8_t*)"\x04\xB9\x15\xBA\x43\xFE\xB5\xB6\x04\xB9\x15\xBA\x43\xFE\xB5\xB6\x04\xB9\x15\xBA\x43\xFE\xB5\xB6";
+uint8_t* const des3cbc_st_key_2 = (uint8_t*)"\x01\x13\xB9\x70\xFD\x34\xF2\xCE\x01\x13\xB9\x70\xFD\x34\xF2\xCE\x01\x13\xB9\x70\xFD\x34\xF2\xCE";
+uint8_t* const des3cbc_st_key_3 = (uint8_t*)"\x01\x70\xF1\x75\x46\x8F\xB5\xE6\x01\x70\xF1\x75\x46\x8F\xB5\xE6\x01\x70\xF1\x75\x46\x8F\xB5\xE6";
+uint8_t* const des3cbc_st_key_4 = (uint8_t*)"\x43\x29\x7F\xAD\x38\xE3\x73\xFE\x43\x29\x7F\xAD\x38\xE3\x73\xFE\x43\x29\x7F\xAD\x38\xE3\x73\xFE";
+
+uint8_t* const des3cbc_st_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cbc_st_plain_1 = (uint8_t*)"\x42\xFD\x44\x30\x59\x57\x7F\xA2";
+uint8_t* const des3cbc_st_plain_2 = (uint8_t*)"\x05\x9B\x5E\x08\x51\xCF\x14\x3A";
+uint8_t* const des3cbc_st_plain_3 = (uint8_t*)"\x07\x56\xD8\xE0\x77\x47\x61\xD2";
+uint8_t* const des3cbc_st_plain_4 = (uint8_t*)"\x76\x25\x14\xB8\x29\xBF\x48\x6A";
+
+uint8_t* const des3cbc_st_cipher_1 = (uint8_t*)"\xAF\x37\xFB\x42\x1F\x8C\x40\x95";
+uint8_t* const des3cbc_st_cipher_2 = (uint8_t*)"\x86\xA5\x60\xF1\x0E\xC6\xD8\x5B";
+uint8_t* const des3cbc_st_cipher_3 = (uint8_t*)"\x0C\xD3\xDA\x02\x00\x21\xDC\x09";
+uint8_t* const des3cbc_st_cipher_4 = (uint8_t*)"\xEA\x67\x6B\x2C\xB7\xDB\x2B\x7A";
+
+CIPHERTEST des3cbc_st_tests[] = {
+    { "DES-EDE-CBC Substitution Table", 4, des3cbc_st_key_1, des3cbc_st_iv, des3cbc_st_plain_1, des3cbc_st_cipher_1, des3::recsize },
+    { "DES-EDE-CBC Substitution Table", 4, des3cbc_st_key_2, des3cbc_st_iv, des3cbc_st_plain_2, des3cbc_st_cipher_2, des3::recsize },
+    { "DES-EDE-CBC Substitution Table", 4, des3cbc_st_key_3, des3cbc_st_iv, des3cbc_st_plain_3, des3cbc_st_cipher_3, des3::recsize },
+    { "DES-EDE-CBC Substitution Table", 4, des3cbc_st_key_4, des3cbc_st_iv, des3cbc_st_plain_4, des3cbc_st_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CFB variable plaintext test vectors
+
+uint8_t* const des3cfb_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3cfb_vp_iv_1 = (uint8_t*)"\x00\x00\x00\x00\x00\x80\x00\x00";
+uint8_t* const des3cfb_vp_iv_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x40\x00\x00";
+uint8_t* const des3cfb_vp_iv_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x20\x00\x00";
+uint8_t* const des3cfb_vp_iv_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x10\x00\x00";
+
+uint8_t* const des3cfb_vp_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cfb_vp_cipher_1 = (uint8_t*)"\x25\xEB\x5F\xC3\xF8\xCF\x06\x21";
+uint8_t* const des3cfb_vp_cipher_2 = (uint8_t*)"\xAB\x6A\x20\xC0\x62\x0D\x1C\x6F";
+uint8_t* const des3cfb_vp_cipher_3 = (uint8_t*)"\x79\xE9\x0D\xBC\x98\xF9\x2C\xCA";
+uint8_t* const des3cfb_vp_cipher_4 = (uint8_t*)"\x86\x6E\xCE\xDD\x80\x72\xBB\x0E";
+
+CIPHERTEST des3cfb_vp_tests[] = {
+    { "DES-EDE-CFB Variable Plaintext", 4, des3cfb_vp_key, des3cfb_vp_iv_1, des3cfb_vp_plain, des3cfb_vp_cipher_1, des3::recsize },
+    { "DES-EDE-CFB Variable Plaintext", 4, des3cfb_vp_key, des3cfb_vp_iv_2, des3cfb_vp_plain, des3cfb_vp_cipher_2, des3::recsize },
+    { "DES-EDE-CFB Variable Plaintext", 4, des3cfb_vp_key, des3cfb_vp_iv_3, des3cfb_vp_plain, des3cfb_vp_cipher_3, des3::recsize },
+    { "DES-EDE-CFB Variable Plaintext", 4, des3cfb_vp_key, des3cfb_vp_iv_4, des3cfb_vp_plain, des3cfb_vp_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CFB inverse permutation test vectors
+
+uint8_t* const des3cfb_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3cfb_ip_iv_1 = (uint8_t*)"\x2F\xBC\x29\x1A\x57\x0D\xB5\xC4";
+uint8_t* const des3cfb_ip_iv_2 = (uint8_t*)"\xE0\x7C\x30\xD7\xE4\xE2\x6E\x12";
+uint8_t* const des3cfb_ip_iv_3 = (uint8_t*)"\x09\x53\xE2\x25\x8E\x8E\x90\xA1";
+uint8_t* const des3cfb_ip_iv_4 = (uint8_t*)"\x5B\x71\x1B\xC4\xCE\xEB\xF2\xEE";
+
+uint8_t* const des3cfb_ip_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cfb_ip_cipher_1 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x80";
+uint8_t* const des3cfb_ip_cipher_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x40";
+uint8_t* const des3cfb_ip_cipher_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x20";
+uint8_t* const des3cfb_ip_cipher_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x10";
+
+CIPHERTEST des3cfb_ip_tests[] = {
+    { "DES-EDE-CFB Inverse Permuatation", 4, des3cfb_ip_key, des3cfb_ip_iv_1, des3cfb_ip_plain, des3cfb_ip_cipher_1, des3::recsize },
+    { "DES-EDE-CFB Inverse Permuatation", 4, des3cfb_ip_key, des3cfb_ip_iv_2, des3cfb_ip_plain, des3cfb_ip_cipher_2, des3::recsize },
+    { "DES-EDE-CFB Inverse Permuatation", 4, des3cfb_ip_key, des3cfb_ip_iv_3, des3cfb_ip_plain, des3cfb_ip_cipher_3, des3::recsize },
+    { "DES-EDE-CFB Inverse Permuatation", 4, des3cfb_ip_key, des3cfb_ip_iv_4, des3cfb_ip_plain, des3cfb_ip_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CFB variable key test vectors
+
+uint8_t* const des3cfb_vk_key_1 = (uint8_t*)"\x01\x01\x01\x10\x01\x01\x01\x01\x01\x01\x01\x10\x01\x01\x01\x01\x01\x01\x01\x10\x01\x01\x01\x01";
+uint8_t* const des3cfb_vk_key_2 = (uint8_t*)"\x01\x01\x01\x08\x01\x01\x01\x01\x01\x01\x01\x08\x01\x01\x01\x01\x01\x01\x01\x08\x01\x01\x01\x01";
+uint8_t* const des3cfb_vk_key_3 = (uint8_t*)"\x01\x01\x01\x04\x01\x01\x01\x01\x01\x01\x01\x04\x01\x01\x01\x01\x01\x01\x01\x04\x01\x01\x01\x01";
+uint8_t* const des3cfb_vk_key_4 = (uint8_t*)"\x01\x01\x01\x02\x01\x01\x01\x01\x01\x01\x01\x02\x01\x01\x01\x01\x01\x01\x01\x02\x01\x01\x01\x01";
+
+uint8_t* const des3cfb_vk_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cfb_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cfb_vk_cipher_1 = (uint8_t*)"\xA8\x1F\xBD\x44\x8F\x9E\x52\x2F";
+uint8_t* const des3cfb_vk_cipher_2 = (uint8_t*)"\x4F\x64\x4C\x92\xE1\x92\xDF\xED";
+uint8_t* const des3cfb_vk_cipher_3 = (uint8_t*)"\x1A\xFA\x9A\x66\xA6\xDF\x92\xAE";
+uint8_t* const des3cfb_vk_cipher_4 = (uint8_t*)"\xB3\xC1\xCC\x71\x5C\xB8\x79\xD8";
+
+CIPHERTEST des3cfb_vk_tests[] = {
+    { "DES-EDE-CFB Variable Key", 4, des3cfb_vk_key_1, des3cfb_vk_iv, des3cfb_vk_plain, des3cfb_vk_cipher_1, des3::recsize },
+    { "DES-EDE-CFB Variable Key", 4, des3cfb_vk_key_2, des3cfb_vk_iv, des3cfb_vk_plain, des3cfb_vk_cipher_2, des3::recsize },
+    { "DES-EDE-CFB Variable Key", 4, des3cfb_vk_key_3, des3cfb_vk_iv, des3cfb_vk_plain, des3cfb_vk_cipher_3, des3::recsize },
+    { "DES-EDE-CFB Variable Key", 4, des3cfb_vk_key_4, des3cfb_vk_iv, des3cfb_vk_plain, des3cfb_vk_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CFB permutation operation test vectors
+
+uint8_t* const des3cfb_po_key_1 = (uint8_t*)"\x10\x07\x91\x15\x98\x19\x01\x0B\x10\x07\x91\x15\x98\x19\x01\x0B\x10\x07\x91\x15\x98\x19\x01\x0B";
+uint8_t* const des3cfb_po_key_2 = (uint8_t*)"\x10\x04\x80\x15\x98\x19\x01\x01\x10\x04\x80\x15\x98\x19\x01\x01\x10\x04\x80\x15\x98\x19\x01\x01";
+uint8_t* const des3cfb_po_key_3 = (uint8_t*)"\x10\x04\x80\x15\x98\x19\x01\x02\x10\x04\x80\x15\x98\x19\x01\x02\x10\x04\x80\x15\x98\x19\x01\x02";
+uint8_t* const des3cfb_po_key_4 = (uint8_t*)"\x10\x04\x80\x15\x98\x19\x01\x08\x10\x04\x80\x15\x98\x19\x01\x08\x10\x04\x80\x15\x98\x19\x01\x08";
+
+uint8_t* const des3cfb_po_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cfb_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cfb_po_cipher_1 = (uint8_t*)"\x05\x56\x05\x81\x6E\x58\x60\x8F";
+uint8_t* const des3cfb_po_cipher_2 = (uint8_t*)"\xAB\xD8\x8E\x8B\x1B\x77\x16\xF1";
+uint8_t* const des3cfb_po_cipher_3 = (uint8_t*)"\x53\x7A\xC9\x5B\xE6\x9D\xA1\xE1";
+uint8_t* const des3cfb_po_cipher_4 = (uint8_t*)"\xAE\xD0\xF6\xAE\x3C\x25\xCD\xD8";
+
+CIPHERTEST des3cfb_po_tests[] = {
+    { "DES-EDE-CFB Permutation Operation", 4, des3cfb_po_key_1, des3cfb_po_iv, des3cfb_po_plain, des3cfb_po_cipher_1, des3::recsize },
+    { "DES-EDE-CFB Permutation Operation", 4, des3cfb_po_key_2, des3cfb_po_iv, des3cfb_po_plain, des3cfb_po_cipher_2, des3::recsize },
+    { "DES-EDE-CFB Permutation Operation", 4, des3cfb_po_key_3, des3cfb_po_iv, des3cfb_po_plain, des3cfb_po_cipher_3, des3::recsize },
+    { "DES-EDE-CFB Permutation Operation", 4, des3cfb_po_key_4, des3cfb_po_iv, des3cfb_po_plain, des3cfb_po_cipher_4, des3::recsize }
+};
+
+// DES-EDE-CFB substitution table test vectors
+
+uint8_t* const des3cfb_st_key_1 = (uint8_t*)"\x07\xA7\x13\x70\x45\xDA\x2A\x16\x07\xA7\x13\x70\x45\xDA\x2A\x16\x07\xA7\x13\x70\x45\xDA\x2A\x16";
+uint8_t* const des3cfb_st_key_2 = (uint8_t*)"\x04\x68\x91\x04\xC2\xFD\x3B\x2F\x04\x68\x91\x04\xC2\xFD\x3B\x2F\x04\x68\x91\x04\xC2\xFD\x3B\x2F";
+uint8_t* const des3cfb_st_key_3 = (uint8_t*)"\x37\xD0\x6B\xB5\x16\xCB\x75\x46\x37\xD0\x6B\xB5\x16\xCB\x75\x46\x37\xD0\x6B\xB5\x16\xCB\x75\x46";
+uint8_t* const des3cfb_st_key_4 = (uint8_t*)"\x1F\x08\x26\x0D\x1A\xC2\x46\x5E\x1F\x08\x26\x0D\x1A\xC2\x46\x5E\x1F\x08\x26\x0D\x1A\xC2\x46\x5E";
+
+uint8_t* const des3cfb_st_iv_1 = (uint8_t*)"\x3B\xDD\x11\x90\x49\x37\x28\x02";
+uint8_t* const des3cfb_st_iv_2 = (uint8_t*)"\x26\x95\x5F\x68\x35\xAF\x60\x9A";
+uint8_t* const des3cfb_st_iv_3 = (uint8_t*)"\x16\x4D\x5E\x40\x4F\x27\x52\x32";
+uint8_t* const des3cfb_st_iv_4 = (uint8_t*)"\x6B\x05\x6E\x18\x75\x9F\x5C\xCA";
+
+uint8_t* const des3cfb_st_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3cfb_st_cipher_1 = (uint8_t*)"\xDF\xD6\x4A\x81\x5C\xAF\x1A\x0F";
+uint8_t* const des3cfb_st_cipher_2 = (uint8_t*)"\x5C\x51\x3C\x9C\x48\x86\xC0\x88";
+uint8_t* const des3cfb_st_cipher_3 = (uint8_t*)"\x0A\x2A\xEE\xAE\x3F\xF4\xAB\x77";
+uint8_t* const des3cfb_st_cipher_4 = (uint8_t*)"\xEF\x1B\xF0\x3E\x5D\xFA\x57\x5A";
+
+CIPHERTEST des3cfb_st_tests[] = {
+    { "DES-EDE-CFB Substitution Table", 4, des3cfb_st_key_1, des3cfb_st_iv_1, des3cfb_st_plain, des3cfb_st_cipher_1, des3::recsize },
+    { "DES-EDE-CFB Substitution Table", 4, des3cfb_st_key_2, des3cfb_st_iv_2, des3cfb_st_plain, des3cfb_st_cipher_2, des3::recsize },
+    { "DES-EDE-CFB Substitution Table", 4, des3cfb_st_key_3, des3cfb_st_iv_3, des3cfb_st_plain, des3cfb_st_cipher_3, des3::recsize },
+    { "DES-EDE-CFB Substitution Table", 4, des3cfb_st_key_4, des3cfb_st_iv_4, des3cfb_st_plain, des3cfb_st_cipher_4, des3::recsize }
+};
+
+// DES-EDE-OFB variable plaintext test vectors
+
+uint8_t* const des3ofb_vp_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3ofb_vp_iv_1 = (uint8_t*)"\x00\x00\x00\x00\x00\x08\x00\x00";
+uint8_t* const des3ofb_vp_iv_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x04\x00\x00";
+uint8_t* const des3ofb_vp_iv_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x02\x00\x00";
+uint8_t* const des3ofb_vp_iv_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x01\x00\x00";
+
+uint8_t* const des3ofb_vp_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ofb_vp_cipher_1 = (uint8_t*)"\x8B\x54\x53\x6F\x2F\x3E\x64\xA8";
+uint8_t* const des3ofb_vp_cipher_2 = (uint8_t*)"\xEA\x51\xD3\x97\x55\x95\xB8\x6B";
+uint8_t* const des3ofb_vp_cipher_3 = (uint8_t*)"\xCA\xFF\xC6\xAC\x45\x42\xDE\x31";
+uint8_t* const des3ofb_vp_cipher_4 = (uint8_t*)"\x8D\xD4\x5A\x2D\xDF\x90\x79\x6C";
+
+CIPHERTEST des3ofb_vp_tests[] = {
+    { "DES-EDE-OFB Variable Plaintext", 4, des3ofb_vp_key, des3ofb_vp_iv_1, des3ofb_vp_plain, des3ofb_vp_cipher_1, des3::recsize },
+    { "DES-EDE-OFB Variable Plaintext", 4, des3ofb_vp_key, des3ofb_vp_iv_2, des3ofb_vp_plain, des3ofb_vp_cipher_2, des3::recsize },
+    { "DES-EDE-OFB Variable Plaintext", 4, des3ofb_vp_key, des3ofb_vp_iv_3, des3ofb_vp_plain, des3ofb_vp_cipher_3, des3::recsize },
+    { "DES-EDE-OFB Variable Plaintext", 4, des3ofb_vp_key, des3ofb_vp_iv_4, des3ofb_vp_plain, des3ofb_vp_cipher_4, des3::recsize }
+};
+
+// DES-EDE-OFB inverse permutation test vectors
+
+uint8_t* const des3ofb_ip_key = (uint8_t*)"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01";
+
+uint8_t* const des3ofb_ip_iv_1 = (uint8_t*)"\xCC\x08\x3F\x1E\x6D\x9E\x85\xF6";
+uint8_t* const des3ofb_ip_iv_2 = (uint8_t*)"\xD2\xFD\x88\x67\xD5\x0D\x2D\xFE";
+uint8_t* const des3ofb_ip_iv_3 = (uint8_t*)"\x06\xE7\xEA\x22\xCE\x92\x70\x8F";
+uint8_t* const des3ofb_ip_iv_4 = (uint8_t*)"\x16\x6B\x40\xB4\x4A\xBA\x4B\xD6";
+
+uint8_t* const des3ofb_ip_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ofb_ip_cipher_1 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x08";
+uint8_t* const des3ofb_ip_cipher_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x04";
+uint8_t* const des3ofb_ip_cipher_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x02";
+uint8_t* const des3ofb_ip_cipher_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x01";
+
+CIPHERTEST des3ofb_ip_tests[] = {
+    { "DES-EDE-OFB Inverse Permutation", 4, des3ofb_ip_key, des3ofb_ip_iv_1, des3ofb_ip_plain, des3ofb_ip_cipher_1, des3::recsize },
+    { "DES-EDE-OFB Inverse Permutation", 4, des3ofb_ip_key, des3ofb_ip_iv_2, des3ofb_ip_plain, des3ofb_ip_cipher_2, des3::recsize },
+    { "DES-EDE-OFB Inverse Permutation", 4, des3ofb_ip_key, des3ofb_ip_iv_3, des3ofb_ip_plain, des3ofb_ip_cipher_3, des3::recsize },
+    { "DES-EDE-OFB Inverse Permutation", 4, des3ofb_ip_key, des3ofb_ip_iv_4, des3ofb_ip_plain, des3ofb_ip_cipher_4, des3::recsize }
+};
+
+// DES-EDE-OFB variable key test vectors
+
+uint8_t* const des3ofb_vk_key_1 = (uint8_t*)"\x01\x01\x01\x01\x80\x01\x01\x01\x01\x01\x01\x01\x80\x01\x01\x01\x01\x01\x01\x01\x80\x01\x01\x01";
+uint8_t* const des3ofb_vk_key_2 = (uint8_t*)"\x01\x01\x01\x01\x40\x01\x01\x01\x01\x01\x01\x01\x40\x01\x01\x01\x01\x01\x01\x01\x40\x01\x01\x01";
+uint8_t* const des3ofb_vk_key_3 = (uint8_t*)"\x01\x01\x01\x01\x20\x01\x01\x01\x01\x01\x01\x01\x20\x01\x01\x01\x01\x01\x01\x01\x20\x01\x01\x01";
+uint8_t* const des3ofb_vk_key_4 = (uint8_t*)"\x01\x01\x01\x01\x10\x01\x01\x01\x01\x01\x01\x01\x10\x01\x01\x01\x01\x01\x01\x01\x10\x01\x01\x01";
+
+uint8_t* const des3ofb_vk_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ofb_vk_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ofb_vk_cipher_1 = (uint8_t*)"\x19\xD0\x32\xE6\x4A\xB0\xBD\x8B";
+uint8_t* const des3ofb_vk_cipher_2 = (uint8_t*)"\x3C\xFA\xA7\xA7\xDC\x87\x20\xDC";
+uint8_t* const des3ofb_vk_cipher_3 = (uint8_t*)"\xB7\x26\x5F\x7F\x44\x7A\xC6\xF3";
+uint8_t* const des3ofb_vk_cipher_4 = (uint8_t*)"\x9D\xB7\x3B\x3C\x0D\x16\x3F\x54";
+
+CIPHERTEST des3ofb_vk_tests[] = {
+    { "DES-EDE-OFB Variable Key", 4, des3ofb_vk_key_1, des3ofb_vk_iv, des3ofb_vk_plain, des3ofb_vk_cipher_1, des3::recsize },
+    { "DES-EDE-OFB Variable Key", 4, des3ofb_vk_key_2, des3ofb_vk_iv, des3ofb_vk_plain, des3ofb_vk_cipher_2, des3::recsize },
+    { "DES-EDE-OFB Variable Key", 4, des3ofb_vk_key_3, des3ofb_vk_iv, des3ofb_vk_plain, des3ofb_vk_cipher_3, des3::recsize },
+    { "DES-EDE-OFB Variable Key", 4, des3ofb_vk_key_4, des3ofb_vk_iv, des3ofb_vk_plain, des3ofb_vk_cipher_4, des3::recsize }
+};
+
+// DES-EDE-OFB permutation operation test vectors
+
+uint8_t* const des3ofb_po_key_1 = (uint8_t*)"\x10\x02\x91\x15\x98\x10\x01\x04\x10\x02\x91\x15\x98\x10\x01\x04\x10\x02\x91\x15\x98\x10\x01\x04";
+uint8_t* const des3ofb_po_key_2 = (uint8_t*)"\x10\x02\x91\x15\x98\x19\x01\x04\x10\x02\x91\x15\x98\x19\x01\x04\x10\x02\x91\x15\x98\x19\x01\x04";
+uint8_t* const des3ofb_po_key_3 = (uint8_t*)"\x10\x02\x91\x15\x98\x10\x02\x01\x10\x02\x91\x15\x98\x10\x02\x01\x10\x02\x91\x15\x98\x10\x02\x01";
+uint8_t* const des3ofb_po_key_4 = (uint8_t*)"\x10\x02\x91\x16\x98\x10\x01\x01\x10\x02\x91\x16\x98\x10\x01\x01\x10\x02\x91\x16\x98\x10\x01\x01";
+
+uint8_t* const des3ofb_po_iv = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ofb_po_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ofb_po_cipher_1 = (uint8_t*)"\xB3\xE3\x5A\x5E\xE5\x3E\x7B\x8D";
+uint8_t* const des3ofb_po_cipher_2 = (uint8_t*)"\x61\xC7\x9C\x71\x92\x1A\x2E\xF8";
+uint8_t* const des3ofb_po_cipher_3 = (uint8_t*)"\xE2\xF5\x72\x8F\x09\x95\x01\x3C";
+uint8_t* const des3ofb_po_cipher_4 = (uint8_t*)"\x1A\xEA\xC3\x9A\x61\xF0\xA4\x64";
+
+CIPHERTEST des3ofb_po_tests[] = {
+    { "DES-EDE-OFB Permutation Operation", 4, des3ofb_po_key_1, des3ofb_po_iv, des3ofb_po_plain, des3ofb_po_cipher_1, des3::recsize },
+    { "DES-EDE-OFB Permutation Operation", 4, des3ofb_po_key_2, des3ofb_po_iv, des3ofb_po_plain, des3ofb_po_cipher_2, des3::recsize },
+    { "DES-EDE-OFB Permutation Operation", 4, des3ofb_po_key_3, des3ofb_po_iv, des3ofb_po_plain, des3ofb_po_cipher_3, des3::recsize },
+    { "DES-EDE-OFB Permutation Operation", 4, des3ofb_po_key_4, des3ofb_po_iv, des3ofb_po_plain, des3ofb_po_cipher_4, des3::recsize }
+};
+
+// DES-EDE-OFB substitution table test vectors
+
+uint8_t* const des3ofb_st_key_1 = (uint8_t*)"\x58\x40\x23\x64\x1A\xBA\x61\x76\x58\x40\x23\x64\x1A\xBA\x61\x76\x58\x40\x23\x64\x1A\xBA\x61\x76";
+uint8_t* const des3ofb_st_key_2 = (uint8_t*)"\x02\x58\x16\x16\x46\x29\xB0\x07\x02\x58\x16\x16\x46\x29\xB0\x07\x02\x58\x16\x16\x46\x29\xB0\x07";
+uint8_t* const des3ofb_st_key_3 = (uint8_t*)"\x49\x79\x3E\xBC\x79\xB3\x25\x8F\x49\x79\x3E\xBC\x79\xB3\x25\x8F\x49\x79\x3E\xBC\x79\xB3\x25\x8F";
+uint8_t* const des3ofb_st_key_4 = (uint8_t*)"\x4F\xB0\x5E\x15\x15\xAB\x73\xA7\x4F\xB0\x5E\x15\x15\xAB\x73\xA7\x4F\xB0\x5E\x15\x15\xAB\x73\xA7";
+
+uint8_t* const des3ofb_st_iv_1 = (uint8_t*)"\x00\x4B\xD6\xEF\x09\x17\x60\x62";
+uint8_t* const des3ofb_st_iv_2 = (uint8_t*)"\x48\x0D\x39\x00\x6E\xE7\x62\xF2";
+uint8_t* const des3ofb_st_iv_3 = (uint8_t*)"\x43\x75\x40\xC8\x69\x8F\x3C\xFA";
+uint8_t* const des3ofb_st_iv_4 = (uint8_t*)"\x07\x2D\x43\xA0\x77\x07\x52\x92";
+
+uint8_t* const des3ofb_st_plain = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const des3ofb_st_cipher_1 = (uint8_t*)"\x88\xBF\x0D\xB6\xD7\x0D\xEE\x56";
+uint8_t* const des3ofb_st_cipher_2 = (uint8_t*)"\xA1\xF9\x91\x55\x41\x02\x0B\x56";
+uint8_t* const des3ofb_st_cipher_3 = (uint8_t*)"\x6F\xBF\x1C\xAF\xCF\xFD\x05\x56";
+uint8_t* const des3ofb_st_cipher_4 = (uint8_t*)"\x2F\x22\xE4\x9B\xAB\x7C\xA1\xAC";
+
+CIPHERTEST des3ofb_st_tests[] = {
+    { "DES-EDE-OFB Substitution Table", 4, des3ofb_st_key_1, des3ofb_st_iv_1, des3ofb_st_plain, des3ofb_st_cipher_1, des3::recsize },
+    { "DES-EDE-OFB Substitution Table", 4, des3ofb_st_key_2, des3ofb_st_iv_2, des3ofb_st_plain, des3ofb_st_cipher_2, des3::recsize },
+    { "DES-EDE-OFB Substitution Table", 4, des3ofb_st_key_3, des3ofb_st_iv_3, des3ofb_st_plain, des3ofb_st_cipher_3, des3::recsize },
+    { "DES-EDE-OFB Substitution Table", 4, des3ofb_st_key_4, des3ofb_st_iv_4, des3ofb_st_plain, des3ofb_st_cipher_4, des3::recsize }
+};
+
+// AES-ECB-128 test vectors
+
+uint8_t* const aes128ecb_key_1 = (uint8_t*)"\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
+uint8_t* const aes128ecb_key_2 = (uint8_t*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f";
+uint8_t* const aes128ecb_key_3 = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes128ecb_key_4 = (uint8_t*)"\x10\xa5\x88\x69\xd7\x4b\xe5\xa3\x74\xcf\x86\x7c\xfb\x47\x38\x59";
+uint8_t* const aes128ecb_key_5 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const aes128ecb_plain_1 = (uint8_t*)"\x32\x43\xf6\xa8\x88\x5a\x30\x8d\x31\x31\x98\xa2\xe0\x37\x07\x34";
+uint8_t* const aes128ecb_plain_2 = (uint8_t*)"\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff";
+uint8_t* const aes128ecb_plain_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes128ecb_plain_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes128ecb_plain_5 = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const aes128ecb_cipher_1 = (uint8_t*)"\x39\x25\x84\x1d\x02\xdc\x09\xfb\xdc\x11\x85\x97\x19\x6a\x0b\x32";
+uint8_t* const aes128ecb_cipher_2 = (uint8_t*)"\x69\xc4\xe0\xd8\x6a\x7b\x04\x30\xd8\xcd\xb7\x80\x70\xb4\xc5\x5a";
+uint8_t* const aes128ecb_cipher_3 = (uint8_t*)"\x0e\xdd\x33\xd3\xc6\x21\xe5\x46\x45\x5b\xd8\xba\x14\x18\xbe\xc8";
+uint8_t* const aes128ecb_cipher_4 = (uint8_t*)"\x6d\x25\x1e\x69\x44\xb0\x51\xe0\x4e\xaa\x6f\xb4\xdb\xf7\x84\x65";
+uint8_t* const aes128ecb_cipher_5 = (uint8_t*)"\x3a\xd7\x8e\x72\x6c\x1e\xc0\x2b\x7e\xbf\xe9\x2b\x23\xd9\xec\x34";
+
+CIPHERTEST aes128ecb_tests[] = {
+    { "AES-128-ECB", 5, aes128ecb_key_1, nullptr, aes128ecb_plain_1, aes128ecb_cipher_1, aes::blockbytes },
+    { "AES-128-ECB", 5, aes128ecb_key_2, nullptr, aes128ecb_plain_2, aes128ecb_cipher_2, aes::blockbytes },
+    { "AES-128-ECB", 5, aes128ecb_key_3, nullptr, aes128ecb_plain_3, aes128ecb_cipher_3, aes::blockbytes },
+    { "AES-128-ECB", 5, aes128ecb_key_4, nullptr, aes128ecb_plain_4, aes128ecb_cipher_4, aes::blockbytes },
+    { "AES-128-ECB", 5, aes128ecb_key_5, nullptr, aes128ecb_plain_5, aes128ecb_cipher_5, aes::blockbytes }
+};
+
+// AES-ECB-192 test vectors
+
+uint8_t* const aes192ecb_key_1 = (uint8_t*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17";
+uint8_t* const aes192ecb_key_2 = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes192ecb_key_3 = (uint8_t*)"\xe9\xf0\x65\xd7\xc1\x35\x73\x58\x7f\x78\x75\x35\x7d\xfb\xb1\x6c\x53\x48\x9f\x6a\x4b\xd0\xf7\xcd";
+uint8_t* const aes192ecb_key_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const aes192ecb_plain_1 = (uint8_t*)"\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff";
+uint8_t* const aes192ecb_plain_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes192ecb_plain_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes192ecb_plain_4 = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const aes192ecb_cipher_1 = (uint8_t*)"\xdd\xa9\x7c\xa4\x86\x4c\xdf\xe0\x6e\xaf\x70\xa0\xec\x0d\x71\x91";
+uint8_t* const aes192ecb_cipher_2 = (uint8_t*)"\xde\x88\x5d\xc8\x7f\x5a\x92\x59\x40\x82\xd0\x2c\xc1\xe1\xb4\x2c";
+uint8_t* const aes192ecb_cipher_3 = (uint8_t*)"\x09\x56\x25\x9c\x9c\xd5\xcf\xd0\x18\x1c\xca\x53\x38\x0c\xde\x06";
+uint8_t* const aes192ecb_cipher_4 = (uint8_t*)"\x6c\xd0\x25\x13\xe8\xd4\xdc\x98\x6b\x4a\xfe\x08\x7a\x60\xbd\x0c";
+
+CIPHERTEST aes192ecb_tests[] = {
+    { "AES-192-ECB", 4, aes192ecb_key_1, nullptr, aes192ecb_plain_1, aes192ecb_cipher_1, aes::blockbytes },
+    { "AES-192-ECB", 4, aes192ecb_key_2, nullptr, aes192ecb_plain_2, aes192ecb_cipher_2, aes::blockbytes },
+    { "AES-192-ECB", 4, aes192ecb_key_3, nullptr, aes192ecb_plain_3, aes192ecb_cipher_3, aes::blockbytes },
+    { "AES-192-ECB", 4, aes192ecb_key_4, nullptr, aes192ecb_plain_4, aes192ecb_cipher_4, aes::blockbytes }
+};
+
+// AES-ECB-256 test vectors
+
+uint8_t* const aes256ecb_key_1 = (uint8_t*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
+uint8_t* const aes256ecb_key_2 = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes256ecb_key_3 = (uint8_t*)"\xc4\x7b\x02\x94\xdb\xbb\xee\x0f\xec\x47\x57\xf2\x2f\xfe\xee\x35\x87\xca\x47\x30\xc3\xd3\x3b\x69\x1d\xf3\x8b\xab\x07\x6b\xc5\x58";
+uint8_t* const aes256ecb_key_4 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const aes256ecb_plain_1 = (uint8_t*)"\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff";
+uint8_t* const aes256ecb_plain_2 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes256ecb_plain_3 = (uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const aes256ecb_plain_4 = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+uint8_t* const aes256ecb_cipher_1 = (uint8_t*)"\x8e\xa2\xb7\xca\x51\x67\x45\xbf\xea\xfc\x49\x90\x4b\x49\x60\x89";
+uint8_t* const aes256ecb_cipher_2 = (uint8_t*)"\xe3\x5a\x6d\xcb\x19\xb2\x01\xa0\x1e\xbc\xfa\x8a\xa2\x2b\x57\x59";
+uint8_t* const aes256ecb_cipher_3 = (uint8_t*)"\x46\xf2\xfb\x34\x2d\x6f\x0a\xb4\x77\x47\x6f\xc5\x01\x24\x2c\x5f";
+uint8_t* const aes256ecb_cipher_4 = (uint8_t*)"\xdd\xc6\xbf\x79\x0c\x15\x76\x0d\x8d\x9a\xeb\x6f\x9a\x75\xfd\x4e";
+
+CIPHERTEST aes256ecb_tests[] = {
+    { "AES-256-ECB", 4, aes256ecb_key_1, nullptr, aes256ecb_plain_1, aes256ecb_cipher_1, aes::blockbytes },
+    { "AES-256-ECB", 4, aes256ecb_key_2, nullptr, aes256ecb_plain_2, aes256ecb_cipher_2, aes::blockbytes },
+    { "AES-256-ECB", 4, aes256ecb_key_3, nullptr, aes256ecb_plain_3, aes256ecb_cipher_3, aes::blockbytes },
+    { "AES-256-ECB", 4, aes256ecb_key_4, nullptr, aes256ecb_plain_4, aes256ecb_cipher_4, aes::blockbytes }
+};
+
+// AES-CBC-128 test vectors
+
+uint8_t* const aes128cbc_key_1 = (uint8_t*)"\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C";
+uint8_t* const aes128cbc_key_2 = (uint8_t*)"\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C";
+uint8_t* const aes128cbc_key_3 = (uint8_t*)"\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C";
+uint8_t* const aes128cbc_key_4 = (uint8_t*)"\x2B\x7E\x15\x16\x28\xAE\xD2\xA6\xAB\xF7\x15\x88\x09\xCF\x4F\x3C";
+
+uint8_t* const aes128cbc_iv_1 = (uint8_t*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+uint8_t* const aes128cbc_iv_2 = (uint8_t*)"\x76\x49\xAB\xAC\x81\x19\xB2\x46\xCE\xE9\x8E\x9B\x12\xE9\x19\x7D";
+uint8_t* const aes128cbc_iv_3 = (uint8_t*)"\x50\x86\xCB\x9B\x50\x72\x19\xEE\x95\xDB\x11\x3A\x91\x76\x78\xB2";
+uint8_t* const aes128cbc_iv_4 = (uint8_t*)"\x73\xBE\xD6\xB8\xE3\xC1\x74\x3B\x71\x16\xE6\x9E\x22\x22\x95\x16";
+
+uint8_t* const aes128cbc_plain_1 = (uint8_t*)"\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A";
+uint8_t* const aes128cbc_plain_2 = (uint8_t*)"\xAE\x2D\x8A\x57\x1E\x03\xAC\x9C\x9E\xB7\x6F\xAC\x45\xAF\x8E\x51";
+uint8_t* const aes128cbc_plain_3 = (uint8_t*)"\x30\xC8\x1C\x46\xA3\x5C\xE4\x11\xE5\xFB\xC1\x19\x1A\x0A\x52\xEF";
+uint8_t* const aes128cbc_plain_4 = (uint8_t*)"\xF6\x9F\x24\x45\xDF\x4F\x9B\x17\xAD\x2B\x41\x7B\xE6\x6C\x37\x10";
+
+uint8_t* const aes128cbc_cipher_1 = (uint8_t*)"\x76\x49\xAB\xAC\x81\x19\xB2\x46\xCE\xE9\x8E\x9B\x12\xE9\x19\x7D";
+uint8_t* const aes128cbc_cipher_2 = (uint8_t*)"\x50\x86\xCB\x9B\x50\x72\x19\xEE\x95\xDB\x11\x3A\x91\x76\x78\xB2";
+uint8_t* const aes128cbc_cipher_3 = (uint8_t*)"\x73\xBE\xD6\xB8\xE3\xC1\x74\x3B\x71\x16\xE6\x9E\x22\x22\x95\x16";
+uint8_t* const aes128cbc_cipher_4 = (uint8_t*)"\x3F\xF1\xCA\xA1\x68\x1F\xAC\x09\x12\x0E\xCA\x30\x75\x86\xE1\xA7";
+
+CIPHERTEST aes128cbc_tests[] = {
+    { "AES-128-CBC", 4, aes128cbc_key_1, aes128cbc_iv_1, aes128cbc_plain_1, aes128cbc_cipher_1, aes::blockbytes },
+    { "AES-128-CBC", 4, aes128cbc_key_2, aes128cbc_iv_2, aes128cbc_plain_2, aes128cbc_cipher_2, aes::blockbytes },
+    { "AES-128-CBC", 4, aes128cbc_key_3, aes128cbc_iv_3, aes128cbc_plain_3, aes128cbc_cipher_3, aes::blockbytes },
+    { "AES-128-CBC", 4, aes128cbc_key_4, aes128cbc_iv_4, aes128cbc_plain_4, aes128cbc_cipher_4, aes::blockbytes }
+};
+
+// AES-CBC-192 test vectors
+
+uint8_t* const aes192cbc_key_1 = (uint8_t*)"\x8E\x73\xB0\xF7\xDA\x0E\x64\x52\xC8\x10\xF3\x2B\x80\x90\x79\xE5\x62\xF8\xEA\xD2\x52\x2C\x6B\x7B";
+uint8_t* const aes192cbc_key_2 = (uint8_t*)"\x8E\x73\xB0\xF7\xDA\x0E\x64\x52\xC8\x10\xF3\x2B\x80\x90\x79\xE5\x62\xF8\xEA\xD2\x52\x2C\x6B\x7B";
+uint8_t* const aes192cbc_key_3 = (uint8_t*)"\x8E\x73\xB0\xF7\xDA\x0E\x64\x52\xC8\x10\xF3\x2B\x80\x90\x79\xE5\x62\xF8\xEA\xD2\x52\x2C\x6B\x7B";
+uint8_t* const aes192cbc_key_4 = (uint8_t*)"\x8E\x73\xB0\xF7\xDA\x0E\x64\x52\xC8\x10\xF3\x2B\x80\x90\x79\xE5\x62\xF8\xEA\xD2\x52\x2C\x6B\x7B";
+
+uint8_t* const aes192cbc_iv_1 = (uint8_t*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+uint8_t* const aes192cbc_iv_2 = (uint8_t*)"\x4F\x02\x1D\xB2\x43\xBC\x63\x3D\x71\x78\x18\x3A\x9F\xA0\x71\xE8";
+uint8_t* const aes192cbc_iv_3 = (uint8_t*)"\xB4\xD9\xAD\xA9\xAD\x7D\xED\xF4\xE5\xE7\x38\x76\x3F\x69\x14\x5A";
+uint8_t* const aes192cbc_iv_4 = (uint8_t*)"\x57\x1B\x24\x20\x12\xFB\x7A\xE0\x7F\xA9\xBA\xAC\x3D\xF1\x02\xE0";
+
+uint8_t* const aes192cbc_plain_1 = (uint8_t*)"\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A";
+uint8_t* const aes192cbc_plain_2 = (uint8_t*)"\xAE\x2D\x8A\x57\x1E\x03\xAC\x9C\x9E\xB7\x6F\xAC\x45\xAF\x8E\x51";
+uint8_t* const aes192cbc_plain_3 = (uint8_t*)"\x30\xC8\x1C\x46\xA3\x5C\xE4\x11\xE5\xFB\xC1\x19\x1A\x0A\x52\xEF";
+uint8_t* const aes192cbc_plain_4 = (uint8_t*)"\xF6\x9F\x24\x45\xDF\x4F\x9B\x17\xAD\x2B\x41\x7B\xE6\x6C\x37\x10";
+
+uint8_t* const aes192cbc_cipher_1 = (uint8_t*)"\x4F\x02\x1D\xB2\x43\xBC\x63\x3D\x71\x78\x18\x3A\x9F\xA0\x71\xE8";
+uint8_t* const aes192cbc_cipher_2 = (uint8_t*)"\xB4\xD9\xAD\xA9\xAD\x7D\xED\xF4\xE5\xE7\x38\x76\x3F\x69\x14\x5A";
+uint8_t* const aes192cbc_cipher_3 = (uint8_t*)"\x57\x1B\x24\x20\x12\xFB\x7A\xE0\x7F\xA9\xBA\xAC\x3D\xF1\x02\xE0";
+uint8_t* const aes192cbc_cipher_4 = (uint8_t*)"\x08\xB0\xE2\x79\x88\x59\x88\x81\xD9\x20\xA9\xE6\x4F\x56\x15\xCD";
+
+CIPHERTEST aes192cbc_tests[] = {
+    { "AES-192-CBC", 4, aes192cbc_key_1, aes192cbc_iv_1, aes192cbc_plain_1, aes192cbc_cipher_1, aes::blockbytes },
+    { "AES-192-CBC", 4, aes192cbc_key_2, aes192cbc_iv_2, aes192cbc_plain_2, aes192cbc_cipher_2, aes::blockbytes },
+    { "AES-192-CBC", 4, aes192cbc_key_3, aes192cbc_iv_3, aes192cbc_plain_3, aes192cbc_cipher_3, aes::blockbytes },
+    { "AES-192-CBC", 4, aes192cbc_key_4, aes192cbc_iv_4, aes192cbc_plain_4, aes192cbc_cipher_4, aes::blockbytes }
+};
+
+// AES-CBC-256 test vectors
+
+uint8_t* const aes256cbc_key_1 = (uint8_t*)"\x60\x3D\xEB\x10\x15\xCA\x71\xBE\x2B\x73\xAE\xF0\x85\x7D\x77\x81\x1F\x35\x2C\x07\x3B\x61\x08\xD7\x2D\x98\x10\xA3\x09\x14\xDF\xF4";
+uint8_t* const aes256cbc_key_2 = (uint8_t*)"\x60\x3D\xEB\x10\x15\xCA\x71\xBE\x2B\x73\xAE\xF0\x85\x7D\x77\x81\x1F\x35\x2C\x07\x3B\x61\x08\xD7\x2D\x98\x10\xA3\x09\x14\xDF\xF4";
+uint8_t* const aes256cbc_key_3 = (uint8_t*)"\x60\x3D\xEB\x10\x15\xCA\x71\xBE\x2B\x73\xAE\xF0\x85\x7D\x77\x81\x1F\x35\x2C\x07\x3B\x61\x08\xD7\x2D\x98\x10\xA3\x09\x14\xDF\xF4";
+uint8_t* const aes256cbc_key_4 = (uint8_t*)"\x60\x3D\xEB\x10\x15\xCA\x71\xBE\x2B\x73\xAE\xF0\x85\x7D\x77\x81\x1F\x35\x2C\x07\x3B\x61\x08\xD7\x2D\x98\x10\xA3\x09\x14\xDF\xF4";
+
+uint8_t* const aes256cbc_iv_1 = (uint8_t*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+uint8_t* const aes256cbc_iv_2 = (uint8_t*)"\xF5\x8C\x4C\x04\xD6\xE5\xF1\xBA\x77\x9E\xAB\xFB\x5F\x7B\xFB\xD6";
+uint8_t* const aes256cbc_iv_3 = (uint8_t*)"\x9C\xFC\x4E\x96\x7E\xDB\x80\x8D\x67\x9F\x77\x7B\xC6\x70\x2C\x7D";
+uint8_t* const aes256cbc_iv_4 = (uint8_t*)"\x39\xF2\x33\x69\xA9\xD9\xBA\xCF\xA5\x30\xE2\x63\x04\x23\x14\x61";
+
+uint8_t* const aes256cbc_plain_1 = (uint8_t*)"\x6B\xC1\xBE\xE2\x2E\x40\x9F\x96\xE9\x3D\x7E\x11\x73\x93\x17\x2A";
+uint8_t* const aes256cbc_plain_2 = (uint8_t*)"\xAE\x2D\x8A\x57\x1E\x03\xAC\x9C\x9E\xB7\x6F\xAC\x45\xAF\x8E\x51";
+uint8_t* const aes256cbc_plain_3 = (uint8_t*)"\x30\xC8\x1C\x46\xA3\x5C\xE4\x11\xE5\xFB\xC1\x19\x1A\x0A\x52\xEF";
+uint8_t* const aes256cbc_plain_4 = (uint8_t*)"\xF6\x9F\x24\x45\xDF\x4F\x9B\x17\xAD\x2B\x41\x7B\xE6\x6C\x37\x10";
+
+uint8_t* const aes256cbc_cipher_1 = (uint8_t*)"\xF5\x8C\x4C\x04\xD6\xE5\xF1\xBA\x77\x9E\xAB\xFB\x5F\x7B\xFB\xD6";
+uint8_t* const aes256cbc_cipher_2 = (uint8_t*)"\x9C\xFC\x4E\x96\x7E\xDB\x80\x8D\x67\x9F\x77\x7B\xC6\x70\x2C\x7D";
+uint8_t* const aes256cbc_cipher_3 = (uint8_t*)"\x39\xF2\x33\x69\xA9\xD9\xBA\xCF\xA5\x30\xE2\x63\x04\x23\x14\x61";
+uint8_t* const aes256cbc_cipher_4 = (uint8_t*)"\xB2\xEB\x05\xE2\xC3\x9B\xE9\xFC\xDA\x6C\x19\x07\x8C\x6A\x9D\x1B";
+
+CIPHERTEST aes256cbc_tests[]{
+    { "AES-256-CBC", 4, aes256cbc_key_1, aes256cbc_iv_1, aes256cbc_plain_1, aes256cbc_cipher_1, aes::blockbytes },
+    { "AES-256-CBC", 4, aes256cbc_key_2, aes256cbc_iv_2, aes256cbc_plain_2, aes256cbc_cipher_2, aes::blockbytes },
+    { "AES-256-CBC", 4, aes256cbc_key_3, aes256cbc_iv_3, aes256cbc_plain_3, aes256cbc_cipher_3, aes::blockbytes },
+    { "AES-256-CBC", 4, aes256cbc_key_4, aes256cbc_iv_4, aes256cbc_plain_4, aes256cbc_cipher_4, aes::blockbytes }
+};
+
 bool _all = false;
 bool _dump = false;
 
@@ -610,6 +1707,190 @@ void testHMACAlgs()
     queryRun("HMAC-SHA384", testHMACSHA384);
 }
 
+void testCipher(Cipher& cipher, uint8_t* ct, uint8_t* pt, CIPHERTEST* tests)
+{
+    printf("Testing %s\n", tests[0].label);
+    if (!_dump)
+        printf("\n");
+    for (int x = 0; x < tests[0].count; x++) {
+        cipher.SetKey(tests[x].key);
+        if (tests[x].iv) cipher.SetIV(tests[x].iv);
+        cipher.Encrypt(tests[x].plain, ct);
+        if (tests[x].iv) cipher.SetIV(tests[x].iv);
+        cipher.Decrypt(ct, pt);
+        if (_dump) {
+            printf("\n");
+            printf("Key:\n");
+            dumpMem(tests[x].key, tests[x].len);
+            if (tests[x].iv) {
+                printf("IV:\n");
+                dumpMem(tests[x].iv, cipher.GetBlockBytes());
+            }
+            printf("Plain:\n");
+            dumpMem(tests[x].plain, tests[x].len);
+            printf("Cipher:\n");
+            dumpMem(tests[x].cipher, tests[x].len);
+            printf("Encrypted:\n");
+            dumpMem(ct, cipher.GetBlockBytes());
+            printf("Decrypted:\n");
+            dumpMem(pt, cipher.GetBlockBytes());
+            printf("\n");
+        }
+        printf("%-5s %s %i of %i Encryption\n", memcmp(ct, tests[x].cipher, cipher.GetBlockBytes()) ? "FAIL" : "OK", tests[x].label, x + 1, tests[x].count);
+        printf("%-5s %s %i of %i Decryption\n", memcmp(pt, tests[x].plain, cipher.GetBlockBytes()) ? "FAIL" : "OK", tests[x].label, x + 1, tests[x].count);
+    }
+    printf("\n");
+}
+
+void testDESECB()
+{
+    uint8_t ct[des::recsize];
+    uint8_t pt[des::recsize];
+    DES des;
+    testCipher(des, ct, pt, desecb_vp_tests);
+    testCipher(des, ct, pt, desecb_ip_tests);
+    testCipher(des, ct, pt, desecb_vk_tests);
+    testCipher(des, ct, pt, desecb_po_tests);
+    testCipher(des, ct, pt, desecb_st_tests);
+}
+
+void testDESCBC()
+{
+    uint8_t ct[des::recsize];
+    uint8_t pt[des::recsize];
+    DESCBC des;
+    testCipher(des, ct, pt, descbc_vp_tests);
+    testCipher(des, ct, pt, descbc_ip_tests);
+    testCipher(des, ct, pt, descbc_vk_tests);
+    testCipher(des, ct, pt, descbc_po_tests);
+    testCipher(des, ct, pt, descbc_st_tests);
+}
+
+void testDESCFB()
+{
+    uint8_t ct[des::recsize];
+    uint8_t pt[des::recsize];
+    DESCFB des;
+    testCipher(des, ct, pt, descfb_vp_tests);
+    testCipher(des, ct, pt, descfb_ip_tests);
+    testCipher(des, ct, pt, descfb_vk_tests);
+    testCipher(des, ct, pt, descfb_po_tests);
+    testCipher(des, ct, pt, descfb_st_tests);
+}
+
+void testDESOFB()
+{
+    uint8_t ct[des::recsize];
+    uint8_t pt[des::recsize];
+    DESOFB des;
+    testCipher(des, ct, pt, desofb_vp_tests);
+    testCipher(des, ct, pt, desofb_ip_tests);
+    testCipher(des, ct, pt, desofb_vk_tests);
+    testCipher(des, ct, pt, desofb_po_tests);
+    testCipher(des, ct, pt, desofb_st_tests);
+}
+
+void testDES()
+{
+    queryRun("DES-ECB", testDESECB);
+    queryRun("DES-CBC", testDESCBC);
+    queryRun("DES-CFB", testDESCFB);
+    queryRun("DES-OFB", testDESOFB);
+}
+
+void testDES3ECB()
+{
+    uint8_t ct[des3::recsize];
+    uint8_t pt[des3::recsize];
+    DES3 des;
+    testCipher(des, ct, pt, des3ecb_vp_tests);
+    testCipher(des, ct, pt, des3ecb_ip_tests);
+    testCipher(des, ct, pt, des3ecb_vk_tests);
+    testCipher(des, ct, pt, des3ecb_po_tests);
+    testCipher(des, ct, pt, des3ecb_st_tests);
+}
+
+void testDES3CBC()
+{
+    uint8_t ct[des3::recsize];
+    uint8_t pt[des3::recsize];
+    DES3CBC des;
+    testCipher(des, ct, pt, des3cbc_vp_tests);
+    testCipher(des, ct, pt, des3cbc_ip_tests);
+    testCipher(des, ct, pt, des3cbc_vk_tests);
+    testCipher(des, ct, pt, des3cbc_po_tests);
+    testCipher(des, ct, pt, des3cbc_st_tests);
+}
+
+void testDES3CFB()
+{
+    uint8_t ct[des3::recsize];
+    uint8_t pt[des3::recsize];
+    DES3CFB des;
+    testCipher(des, ct, pt, des3cfb_vp_tests);
+    testCipher(des, ct, pt, des3cfb_ip_tests);
+    testCipher(des, ct, pt, des3cfb_vk_tests);
+    testCipher(des, ct, pt, des3cfb_po_tests);
+    testCipher(des, ct, pt, des3cfb_st_tests);
+}
+
+void testDES3OFB()
+{
+    uint8_t ct[des3::recsize];
+    uint8_t pt[des3::recsize];
+    DES3OFB des;
+    testCipher(des, ct, pt, des3ofb_vp_tests);
+    testCipher(des, ct, pt, des3ofb_ip_tests);
+    testCipher(des, ct, pt, des3ofb_vk_tests);
+    testCipher(des, ct, pt, des3ofb_po_tests);
+    testCipher(des, ct, pt, des3ofb_st_tests);
+}
+
+void testDES3()
+{
+    queryRun("DES-EDE-ECB", testDES3ECB);
+    queryRun("DES-EDE-CBC", testDES3CBC);
+    queryRun("DES-EDE-CFB", testDES3CFB);
+    queryRun("DES-EDE-OFB", testDES3OFB);
+}
+
+void testAESECB()
+{
+    uint8_t ct[aes::blockbytes];
+    uint8_t pt[aes::blockbytes];
+    AES128ECB aes128ecb;
+    testCipher(aes128ecb, ct, pt, aes128ecb_tests);
+    AES192ECB aes192ecb;
+    testCipher(aes192ecb, ct, pt, aes192ecb_tests);
+    AES256ECB aes256ecb;
+    testCipher(aes256ecb, ct, pt, aes256ecb_tests);
+}
+
+void testAESCBC()
+{
+    uint8_t ct[aes::blockbytes];
+    uint8_t pt[aes::blockbytes];
+    AES128CBC aes128cbc;
+    testCipher(aes128cbc, ct, pt, aes128cbc_tests);
+    AES192CBC aes192cbc;
+    testCipher(aes192cbc, ct, pt, aes192cbc_tests);
+    AES256CBC aes256cbc;
+    testCipher(aes256cbc, ct, pt, aes256cbc_tests);
+}
+
+void testAES()
+{
+    queryRun("AES-ECB", testAESECB);
+    queryRun("AES-CBC", testAESCBC);
+}
+
+void testSymmetricEncryption()
+{
+    queryRun("DES", testDES);
+    queryRun("DES-EDE (Triple-DES)", testDES3);
+    queryRun("AES", testAES);
+}
+
 int runTests()
 {
     printf("\n");
@@ -621,6 +1902,7 @@ int runTests()
 
     queryRun("Message Digest", testDigestAlgs);
     queryRun("Hashed MAC", testHMACAlgs);
+    queryRun("Symmetric Encryption", testSymmetricEncryption);
 
     printf("Tests Completed\n");
     return 0;

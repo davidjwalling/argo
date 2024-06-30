@@ -147,6 +147,7 @@
     <ClCompile Include="..\argo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig" />
     <None Include="..\.gitignore" />
     <None Include="..\Makefile" />
     <None Include="..\WINDOWS.md" />

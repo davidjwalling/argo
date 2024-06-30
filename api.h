@@ -7,7 +7,7 @@
 #include <ws2ipdef.h> // sockaddr_in6
 #include <WS2tcpip.h> // inet_pton
 #else
-#if defined(__linux__) || defined (__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <fcntl.h> // open
 #include <netinet/in.h> // sockaddr_in
 #include <signal.h> // signal
@@ -20,7 +20,8 @@
 #endif
 #include <cstdint> // uint16_t
 #include <cstdio> // printf
-#include <time.h> // time, gmtime
+#include <cstdlib> // free
+#include <ctime> // time, gmtime
 
 enum {
     cond_base_socket = 300,
@@ -69,3 +70,6 @@ typedef struct systemtime {
 #if !defined(_WIN32)
 void GetSystemTime(SYSTEMTIME* st);
 #endif
+EXPORT void datetimeclock(uint8_t* buf);
+EXPORT void freeptr(uint8_t** ptr);
+EXPORT void setptr(uint8_t** ptr, uint8_t* s, size_t len);

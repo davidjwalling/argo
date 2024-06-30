@@ -2,8 +2,13 @@
 #include "aes.h"
 #include "des.h"
 #include "hmac.h"
+#include "pbc2.h"
+#include "prng.h"
+#include "random.h"
 #include "md5.h"
 #include "sha.h"
+
+#include <chrono>
 
 using namespace std;
 
@@ -64,6 +69,171 @@ const char Bin2AscPrt[] = {
     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+};
+
+const uint32_t ByteOnes[256] = {
+    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, // 00-0F
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, // 10-1F
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, // 20-2F
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, // 30-3F
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, // 40-4F
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, // 50-5F
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, // 60-6F
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, // 70-7F
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, // 80-8F
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, // 90-9F
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, // A0-AF
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, // B0-BF
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, // C0-CF
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, // D0-DF
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, // E0-EF
+    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8 // FF-FF
+};
+
+uint8_t ByteRuns[128][8] = {
+    { 8, 0, 0, 0, 0, 0, 0, 0 }, //  00000000 11111111
+    { 7, 1, 0, 0, 0, 0, 0, 0 }, //  00000001 11111110
+    { 6, 1, 1, 0, 0, 0, 0, 0 }, //  00000010 11111101
+    { 6, 2, 0, 0, 0, 0, 0, 0 }, //  00000011 11111100
+    { 5, 1, 2, 0, 0, 0, 0, 0 }, //  00000100 11111011
+    { 5, 1, 1, 1, 0, 0, 0, 0 }, //  00000101 11111010
+    { 5, 2, 1, 0, 0, 0, 0, 0 }, //  00000110 11111001
+    { 5, 3, 0, 0, 0, 0, 0, 0 }, //  00000111 11111000
+
+    { 4, 1, 3, 0, 0, 0, 0, 0 }, //  00001000
+    { 4, 1, 2, 1, 0, 0, 0, 0 }, //  00001001
+    { 4, 1, 1, 1, 1, 0, 0, 0 }, //  00001010
+    { 4, 1, 1, 2, 0, 0, 0, 0 }, //  00001011
+    { 4, 2, 2, 0, 0, 0, 0, 0 }, //  00001100
+    { 4, 2, 1, 1, 0, 0, 0, 0 }, //  00001101
+    { 4, 3, 1, 0, 0, 0, 0, 0 }, //  00001110
+    { 4, 4, 0, 0, 0, 0, 0, 0 }, //  00001111
+
+    { 3, 1, 4, 0, 0, 0, 0, 0 }, //  00010000
+    { 3, 1, 3, 1, 0, 0, 0, 0 }, //  00010001
+    { 3, 1, 2, 1, 1, 0, 0, 0 }, //  00010010
+    { 3, 1, 2, 2, 0, 0, 0, 0 }, //  00010011
+    { 3, 1, 1, 1, 2, 0, 0, 0 }, //  00010100
+    { 3, 1, 1, 1, 1, 1, 0, 0 }, //  00010101
+    { 3, 1, 1, 2, 1, 0, 0, 0 }, //  00010110
+    { 3, 1, 1, 3, 0, 0, 0, 0 }, //  00010111
+
+    { 3, 2, 3, 0, 0, 0, 0, 0 }, //  00011000
+    { 3, 2, 2, 1, 0, 0, 0, 0 }, //  00011001
+    { 3, 2, 1, 1, 1, 0, 0, 0 }, //  00011010
+    { 3, 2, 1, 2, 0, 0, 0, 0 }, //  00011011
+    { 3, 3, 2, 0, 0, 0, 0, 0 }, //  00011100
+    { 3, 3, 1, 1, 0, 0, 0, 0 }, //  00011101
+    { 3, 4, 1, 0, 0, 0, 0, 0 }, //  00011110
+    { 3, 5, 0, 0, 0, 0, 0, 0 }, //  00011111
+
+    { 2, 1, 5, 0, 0, 0, 0, 0 }, //  00100000
+    { 2, 1, 4, 1, 0, 0, 0, 0 }, //  00100001
+    { 2, 1, 3, 1, 1, 0, 0, 0 }, //  00100010
+    { 2, 1, 3, 2, 0, 0, 0, 0 }, //  00100011
+    { 2, 1, 2, 1, 2, 0, 0, 0 }, //  00100100
+    { 2, 1, 2, 1, 1, 1, 0, 0 }, //  00100101
+    { 2, 1, 2, 2, 1, 0, 0, 0 }, //  00100110
+    { 2, 1, 2, 3, 0, 0, 0, 0 }, //  00100111
+
+    { 2, 1, 1, 1, 3, 0, 0, 0 }, //  00101000
+    { 2, 1, 1, 1, 2, 1, 0, 0 }, //  00101001
+    { 2, 1, 1, 1, 1, 1, 1, 0 }, //  00101010
+    { 2, 1, 1, 1, 1, 2, 0, 0 }, //  00101011
+    { 2, 1, 1, 2, 2, 0, 0, 0 }, //  00101100
+    { 2, 1, 1, 2, 1, 1, 0, 0 }, //  00101101
+    { 2, 1, 1, 3, 1, 0, 0, 0 }, //  00101110
+    { 2, 1, 1, 4, 0, 0, 0, 0 }, //  00101111
+
+    { 2, 2, 4, 0, 0, 0, 0, 0 }, //  00110000
+    { 2, 2, 3, 1, 0, 0, 0, 0 }, //  00110001
+    { 2, 2, 2, 1, 1, 0, 0, 0 }, //  00110010
+    { 2, 2, 2, 2, 0, 0, 0, 0 }, //  00110011
+    { 2, 2, 1, 1, 2, 0, 0, 0 }, //  00110100
+    { 2, 2, 1, 1, 1, 1, 0, 0 }, //  00110101
+    { 2, 2, 1, 2, 1, 0, 0, 0 }, //  00110110
+    { 2, 2, 1, 3, 0, 0, 0, 0 }, //  00110111
+
+    { 2, 3, 3, 0, 0, 0, 0, 0 }, //  00111000
+    { 2, 3, 2, 1, 0, 0, 0, 0 }, //  00111001
+    { 2, 3, 1, 1, 1, 0, 0, 0 }, //  00111010
+    { 2, 3, 1, 2, 0, 0, 0, 0 }, //  00111011
+    { 2, 4, 2, 0, 0, 0, 0, 0 }, //  00111100
+    { 2, 4, 1, 1, 0, 0, 0, 0 }, //  00111101
+    { 2, 5, 1, 0, 0, 0, 0, 0 }, //  00111110
+    { 2, 6, 0, 0, 0, 0, 0, 0 }, //  00111111
+
+    { 1, 1, 6, 0, 0, 0, 0, 0 }, //  01000000
+    { 1, 1, 5, 1, 0, 0, 0, 0 }, //  01000001
+    { 1, 1, 4, 1, 1, 0, 0, 0 }, //  01000010
+    { 1, 1, 4, 2, 0, 0, 0, 0 }, //  01000011
+    { 1, 1, 3, 1, 2, 0, 0, 0 }, //  01000100
+    { 1, 1, 3, 1, 1, 1, 0, 0 }, //  01000101
+    { 1, 1, 3, 2, 1, 0, 0, 0 }, //  01000110
+    { 1, 1, 3, 3, 0, 0, 0, 0 }, //  01000111
+
+    { 1, 1, 2, 1, 3, 0, 0, 0 }, //  01001000
+    { 1, 1, 2, 1, 2, 1, 0, 0 }, //  01001001
+    { 1, 1, 2, 1, 1, 1, 1, 0 }, //  01001010
+    { 1, 1, 2, 1, 1, 2, 0, 0 }, //  01001011
+    { 1, 1, 2, 2, 2, 0, 0, 0 }, //  01001100
+    { 1, 1, 2, 2, 1, 1, 0, 0 }, //  01001101
+    { 1, 1, 2, 3, 1, 0, 0, 0 }, //  01001110
+    { 1, 1, 2, 4, 0, 0, 0, 0 }, //  01001111
+
+    { 1, 1, 1, 1, 4, 0, 0, 0 }, //  01010000
+    { 1, 1, 1, 1, 3, 1, 0, 0 }, //  01010001
+    { 1, 1, 1, 1, 2, 1, 1, 0 }, //  01010010
+    { 1, 1, 1, 1, 2, 2, 0, 0 }, //  01010011
+    { 1, 1, 1, 1, 1, 1, 2, 0 }, //  01010100
+    { 1, 1, 1, 1, 1, 1, 1, 1 }, //  01010101
+    { 1, 1, 1, 1, 1, 2, 1, 0 }, //  01010110
+    { 1, 1, 1, 1, 1, 3, 0, 0 }, //  01010111
+
+    { 1, 1, 1, 2, 3, 0, 0, 0 }, //  01011000
+    { 1, 1, 1, 2, 2, 1, 0, 0 }, //  01011001
+    { 1, 1, 1, 2, 1, 1, 1, 0 }, //  01011010
+    { 1, 1, 1, 2, 1, 2, 0, 0 }, //  01011011
+    { 1, 1, 1, 3, 2, 0, 0, 0 }, //  01011100
+    { 1, 1, 1, 3, 1, 1, 0, 0 }, //  01011101
+    { 1, 1, 1, 4, 1, 0, 0, 0 }, //  01011110
+    { 1, 1, 1, 5, 0, 0, 0, 0 }, //  01011111
+
+    { 1, 2, 5, 0, 0, 0, 0, 0 }, //  01100000
+    { 1, 2, 4, 1, 0, 0, 0, 0 }, //  01100001
+    { 1, 2, 3, 1, 1, 0, 0, 0 }, //  01100010
+    { 1, 2, 3, 2, 0, 0, 0, 0 }, //  01100011
+    { 1, 2, 2, 1, 2, 0, 0, 0 }, //  01100100
+    { 1, 2, 2, 1, 1, 1, 0, 0 }, //  01100101 10011010
+    { 1, 2, 2, 2, 1, 0, 0, 0 }, //  01100110 10011001
+    { 1, 2, 2, 3, 0, 0, 0, 0 }, //  01100111 10011000
+
+    { 1, 2, 1, 1, 3, 0, 0, 0 }, //  01101000 10010111
+    { 1, 2, 1, 1, 2, 1, 0, 0 }, //  01101001 10010110
+    { 1, 2, 1, 1, 1, 1, 1, 0 }, //  01101010 10010101
+    { 1, 2, 1, 1, 1, 2, 0, 0 }, //  01101011 10010100
+    { 1, 2, 1, 2, 2, 0, 0, 0 }, //  01101100 10010011
+    { 1, 2, 1, 2, 1, 1, 0, 0 }, //  01101101 10010010
+    { 1, 2, 1, 3, 1, 0, 0, 0 }, //  01101110 10010001
+    { 1, 2, 1, 4, 0, 0, 0, 0 }, //  01101111 10010000
+
+    { 1, 3, 4, 0, 0, 0, 0, 0 }, //  01110000 10001111
+    { 1, 3, 3, 1, 0, 0, 0, 0 }, //  01110001 10001110
+    { 1, 3, 2, 1, 1, 0, 0, 0 }, //  01110010 10001101
+    { 1, 3, 2, 2, 0, 0, 0, 0 }, //  01110011 10001100
+    { 1, 3, 1, 1, 2, 0, 0, 0 }, //  01110100 10001011
+    { 1, 3, 1, 1, 1, 1, 0, 0 }, //  01110101 10001010
+    { 1, 3, 1, 2, 1, 0, 0, 0 }, //  01110110 10001001
+    { 1, 3, 1, 3, 0, 0, 0, 0 }, //  01110111 10001000
+
+    { 1, 4, 3, 0, 0, 0, 0, 0 }, //  01111000 10000111
+    { 1, 4, 2, 1, 0, 0, 0, 0 }, //  01111001 10000110
+    { 1, 4, 1, 1, 1, 0, 0, 0 }, //  01111010 10000101
+    { 1, 4, 1, 2, 0, 0, 0, 0 }, //  01111011 10000100
+    { 1, 5, 2, 0, 0, 0, 0, 0 }, //  01111100 10000011
+    { 1, 5, 1, 1, 0, 0, 0, 0 }, //  01111101 10000010
+    { 1, 6, 1, 0, 0, 0, 0, 0 }, //  01111110 10000001
+    { 1, 7, 0, 0, 0, 0, 0, 0 } //  01111111 10000000
 };
 
 //  MD5 test vectors 1-7: RFC 1321
@@ -1512,6 +1682,27 @@ CIPHERTEST aes256cbc_tests[]{
     { "AES-256-CBC", 4, aes256cbc_key_4, aes256cbc_iv_4, aes256cbc_plain_4, aes256cbc_cipher_4, aes::blockbytes }
 };
 
+// ANSI X9.31 test vectors: ANSI X9.31 Appendix A.2.4 using Triple-DES
+
+uint8_t* const x931des3_key = (uint8_t*)"\xfb\xf7\x31\x26\xd0\xd3\xbf\x51\xae\xce\x9d\x98\xa1\x13\xc8\x68\xb9\x16\x15\xb9\x1f\x6d\xb9\x26";
+uint8_t* const x931des3_dt = (uint8_t*)"\x5c\x8d\x9e\x2d\x2b\x61\x9b\x0e";
+uint8_t* const x931des3_v = (uint8_t*)"\x80\x00\x00\x00\x00\x00\x00\x00";
+uint8_t* const x931des3_r = (uint8_t*)"\xF7\xdf\x53\x33\x3a\x5b\x44\xeb";
+
+// PBKDF2 test vectors: https://tools.ietf.org/html/draft-josefsson-ppkdf2-test-vectors-06
+
+uint8_t* const pbkdf2_p_1 = (uint8_t*)"password";
+uint8_t* const pbkdf2_s_1 = (uint8_t*)"salt";
+uint32_t const pbkdf2_c_1 = 1;
+uint32_t const pbkdf2_dklen_1 = 20;
+uint8_t* const pbkdf2_o_1 = (uint8_t*)"\x0c\x60\xc8\x0f\x96\x1f\x0e\x71\xf3\xa9\xb5\x24\xaf\x60\x12\x06\x2f\xe0\x37\xa6";
+
+uint8_t* const pbkdf2_p_2 = (uint8_t*)"password";
+uint8_t* const pbkdf2_s_2 = (uint8_t*)"salt";
+uint32_t const pbkdf2_c_2 = 2;
+uint32_t const pbkdf2_dklen_2 = 20;
+uint8_t* const pbkdf2_o_2 = (uint8_t*)"\xea\x6c\x01\x4d\xc7\x2d\x6f\x8c\xcd\x1e\xd9\x2a\xce\x1d\x41\xf0\xd8\xde\x89\x57";
+
 bool _all = false;
 bool _dump = false;
 
@@ -1891,6 +2082,206 @@ void testSymmetricEncryption()
     queryRun("AES", testAES);
 }
 
+void testFastRandom()
+{
+    int i;
+    uint32_t h, j;
+    union {
+        uint32_t k[640]; // 20,480 bits
+        uint8_t kb[2560];
+    } kval;
+    uint32_t nybs[16]; // nybble accumulators
+    uint32_t a[8]; // 1's run lengths
+    uint32_t b[8]; // 0's run lengths
+    double dbl, dbl2;
+    uint8_t l, m, v, x, y, z;
+    Random rand;
+    printf("Testing Fast Pseudo-Random Algorithm\n\n");
+    for (i = 0; i < 80; i++) {
+        for (j = 0; j < 8; j++) {
+            h = rand.Rand();
+            printf(" %08X", h);
+            kval.k[(i * 8) + j] = h;
+        }
+        printf("\n");
+    }
+    printf("\nRandom Distribution by Bit\n\n");
+    dbl2 = 0;
+    for (i = 1; i; i <<= 1) {
+        dbl = 0;
+        for (j = 0; j < 640; j++) {
+            if (kval.k[j] & i)
+                dbl++;
+        }
+        dbl /= 640;
+        printf(" 0x%08X = %lf %s\n", i, dbl, ((dbl >= 0.55) || (dbl < 0.45) ? "<--" : " "));
+        dbl2 += dbl;
+    }
+    printf("\nAverage Distribution by Bit = %lf\n", (dbl2 / 32));
+    printf("\nCounting the number of one's in a 20,000 bit random stream (\"monobit\" test)\n");
+    h = 0;
+    for (i = 0; i < 625; i++) {
+        j = kval.k[i];
+        h += ByteOnes[(j >> 24) & 0xFF];
+        h += ByteOnes[(j >> 16) & 0xFF];
+        h += ByteOnes[(j >> 8) & 0xFF];
+        h += ByteOnes[(j) & 0xFF];
+    }
+    printf("\n Total ones in 20,000 random bits = %d", h);
+    printf("\n This is %s the FIPS 140-2 acceptable range of 9,725 to 10,275\n", ((h <= 9725) || (h >= 10275)) ? "outside" : "within");
+    printf("\nCounting the number of instance of distinct nybbles in 20,000 bit random stream (\"poker\" test)\n\n");
+    for (i = 0; i < 16; i++) { nybs[i] = 0; }
+    for (i = 0; i < 625; i++) {
+        j = kval.k[i];
+        nybs[(j >> 28) & 0x0f]++;
+        nybs[(j >> 24) & 0x0f]++;
+        nybs[(j >> 20) & 0x0f]++;
+        nybs[(j >> 16) & 0x0f]++;
+        nybs[(j >> 12) & 0x0f]++;
+        nybs[(j >> 8) & 0x0f]++;
+        nybs[(j >> 4) & 0x0f]++;
+        nybs[(j) & 0x0f]++;
+    }
+    for (i = 0; i < 16; i++) printf(" 0x%02X : %d\n", i, nybs[i]);
+    for (i = 0, dbl = 0; i < 16; i++) dbl += ((uint64_t)nybs[i] * nybs[i]);
+    dbl2 = 16;
+    dbl2 /= 5000;
+    dbl2 *= dbl;
+    dbl2 -= 5000;
+    printf("\n Poker test result = %lf\n", (dbl2));
+    printf(" This is %s the FIPS 140-2 acceptable range of 2.16 to 46.17\n", ((dbl2 <= 2.16) || (dbl2 >= 46.17)) ? "outside" : "within");
+    printf("\nPerforming \"runs\" test on 20,000 bit random stream\n\n");
+    for (i = 0; i < 8; i++) { a[i] = 0, b[i] = 0; }
+    for (i = 0, m = 6, z = 0xFF; i < 2500; i++) {
+        x = kval.kb[i];
+        y = (uint8_t)(x & 0x80);
+        v = (uint8_t)(y ? ~x : x);
+        if (y == z) {
+            if (m < 6) {
+                if (y)
+                    a[m]--;
+                else
+                    b[m]--;
+                m = (uint8_t)(m + ByteRuns[v][0]);
+                if (m > 6)
+                    m = 6;
+                if (y)
+                    a[m]++;
+                else
+                    b[m]++;
+            }
+            j = 1;
+        } else
+            j = 0;
+        for (; j < 8; j++) {
+            l = ByteRuns[v][j];
+            if (!l)
+                break;
+            m = (uint8_t)(l > 5 ? 6 : l);
+            if (y)
+                if (!(j & 1))
+                    a[m]++;
+                else
+                    b[m]++;
+            else if (j & 1)
+                a[m]++;
+            else
+                b[m]++;
+        }
+        z = (uint8_t)(x & 1 ? 0x80 : 0);
+    }
+    printf(" 1 one  = %4d %4s   1 zero  = %4d %4s\n", a[1], ((a[1] < 2343) || (a[1] > 2657)) ? "FAIL" : "OK", b[1], ((b[1] < 2343) || (b[1] > 2657)) ? "FAIL" : "OK");
+    printf(" 2 ones = %4d %4s   2 zeros = %4d %4s\n", a[2], ((a[2] < 1135) || (a[2] > 1365)) ? "FAIL" : "OK", b[2], ((b[2] < 1135) || (b[2] > 1365)) ? "FAIL" : "OK");
+    printf(" 3 ones = %4d %4s   3 zeros = %4d %4s\n", a[3], ((a[3] < 542) || (a[3] > 708)) ? "FAIL" : "OK", b[3], ((b[3] < 542) || (b[3] > 708)) ? "FAIL" : "OK");
+    printf(" 4 ones = %4d %4s   4 zeros = %4d %4s\n", a[4], ((a[4] < 251) || (a[4] > 373)) ? "FAIL" : "OK", b[4], ((b[4] < 251) || (b[4] > 373)) ? "FAIL" : "OK");
+    printf(" 5 ones = %4d %4s   5 zeros = %4d %4s\n", a[5], ((a[5] < 111) || (a[5] > 201)) ? "FAIL" : "OK", b[5], ((b[5] < 111) || (b[5] > 201)) ? "FAIL" : "OK");
+    printf(">5 ones = %4d %4s  >5 zeros = %4d %4s\n\n", a[6], ((a[6] < 111) || (a[6] > 201)) ? "FAIL" : "OK", b[6], ((b[6] < 111) || (b[6] > 201)) ? "FAIL" : "OK");
+
+    printf("Measuring 1,000 iterations of RANDOM::random()\n");
+    auto start = std::chrono::steady_clock::now();
+    for (i = 0; i < 1000; i++) {
+        rand.Rand();
+    }
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    printf("RANDOM::Random() time: %0.4fms  avg: %0.6fms\n\n", elapsed.count() * 1000, elapsed.count());
+}
+
+void testX931Random()
+{
+    uint32_t h;
+    uint8_t plain[cipher::recsize];
+    uint8_t cipher_pre[cipher::recsize];
+    uint8_t mask[cipher::recsize];
+    uint8_t cipher[cipher::recsize];
+    uint8_t random_pre[cipher::recsize];
+    uint8_t random[cipher::recsize];
+    DES3 des3;
+    PRNG prng;
+    printf("Testing ANSI X9.31 Pseudo-Random Generation\n");
+    if (!_dump)
+        printf("\n");
+    des3.SetKey(x931des3_key);
+    memcpy(plain, x931des3_dt, sizeof(plain));
+    memcpy(mask, x931des3_v, sizeof(mask));
+    des3.Encrypt(plain, cipher_pre);
+    for (h = 0; h < sizeof(cipher); h++) { cipher[h] = cipher_pre[h] ^ mask[h]; }
+    des3.Encrypt(cipher, random_pre);
+    for (h = 0; h < sizeof(random); h++) { random[h] = random_pre[h] ^ mask[h]; }
+    if (_dump) {
+        printf("\n");
+        printf("Key:\n");
+        dumpMem(x931des3_key, 24);
+        printf("Plain:\n");
+        dumpMem(plain, sizeof(plain));
+        printf("Mask:\n");
+        dumpMem(mask, sizeof(mask));
+        printf("Cipher (before mask):\n");
+        dumpMem(cipher_pre, sizeof(cipher_pre));
+        printf("Cipher (after mask):\n");
+        dumpMem(cipher, sizeof(cipher));
+        printf("Random (before mask):\n");
+        dumpMem(random_pre, sizeof(random_pre));
+        printf("Random (after mask):\n");
+        dumpMem(random, sizeof(random));
+        printf("\n");
+    }
+    printf("%-5s ANSI X9.31 1 of 1\n\n", !memcmp(random, x931des3_r, sizeof(random)) ? "OK" : "FAIL");
+}
+
+void testPBKDF2()
+{
+    PBC2 pbc2;
+    uint8_t dk[20] = { 0 };
+    printf("Testing Password-Based Key Derivation Function 2 (PBKDF2)\n");
+    if (!_dump)
+        printf("\n");
+    pbc2.SetPassword(pbkdf2_p_1, 8);
+    pbc2.SetSalt(pbkdf2_s_1, 4);
+    pbc2.SetCount(1);
+    pbc2.DeriveKey(dk, sizeof(dk));
+    if (_dump) {
+        printf("\n");
+        printf("Password:\n");
+        dumpMem(pbkdf2_p_1, 8);
+        printf("Salt\n");
+        dumpMem(pbkdf2_s_1, 4);
+        printf("Count: %u\n", 1);
+        printf("Derived Key Length: %u\n", 20);
+        printf("Derived Key:\n");
+        dumpMem(dk, sizeof(dk));
+        printf("\n");
+    }
+    printf("%-5s PBKDF2 1 of 1\n\n", !memcmp(dk, pbkdf2_o_1, sizeof(dk)) ? "OK" : "FAIL");
+}
+
+void testRandom()
+{
+    queryRun("Fast Random", testFastRandom);
+    queryRun("X9.31 Random", testX931Random);
+    queryRun("PBKDF2 Key Derivation", testPBKDF2);
+}
+
 int runTests()
 {
     printf("\n");
@@ -1903,6 +2294,7 @@ int runTests()
     queryRun("Message Digest", testDigestAlgs);
     queryRun("Hashed MAC", testHMACAlgs);
     queryRun("Symmetric Encryption", testSymmetricEncryption);
+    queryRun("Pseudo-Random", testRandom);
 
     printf("Tests Completed\n");
     return 0;

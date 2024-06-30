@@ -15,6 +15,7 @@
 #include <arpa/inet.h> // inet_pton
 #include <cstdarg> // va_start, va_end
 #include <cstring> // memset
+#include <sys/time.h> // gettimeofday
 #include <unistd.h> // fork
 #endif
 #include <cstdint> // uint16_t

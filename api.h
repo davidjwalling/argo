@@ -51,3 +51,20 @@ using SOCKET = size_t;
 using SOCKET = int;
 #endif
 #endif
+
+#if !defined(_WIN32)
+typedef struct systemtime {
+    unsigned short wYear;
+    unsigned short wMonth;
+    unsigned short wDayOfWeek;
+    unsigned short wDay;
+    unsigned short wHour;
+    unsigned short wMinute;
+    unsigned short wSecond;
+    unsigned short wMilliseconds;
+} SYSTEMTIME;
+#endif
+
+#if !defined(_WIN32)
+void GetSystemTime(SYSTEMTIME* st);
+#endif

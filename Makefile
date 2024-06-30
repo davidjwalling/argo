@@ -30,7 +30,7 @@ uninstall:
 .PHONY:
 	clean
 
-LIBOBJS = aes.o channel.o cipher.o des.o digest.o driver.o hmac.o json.o logger.o md5.o path.o random.o sha.o socket.o udpchannel.o
+LIBOBJS = aes.o api.o channel.o cipher.o des.o digest.o driver.o hmac.o json.o logger.o md5.o path.o random.o sha.o socket.o udpchannel.o
 TESTOBJS = testargo.o
 APPOBJS = argo.o
 
@@ -45,6 +45,9 @@ argo: ${APPOBJS}
 
 aes.o: aes.cpp
 	${LIBCC} aes.cpp
+
+api.o: api.cpp
+	${LIBCC} api.cpp
 
 argo.o: argo.cpp
 	${APPCC} argo.cpp
@@ -96,6 +99,9 @@ udpchannel.o: udpchannel.cpp
 
 aes.cpp: aes.h asn.h oid.h
 	touch aes.cpp
+
+api.cpp: api.h
+	touch api.cpp
 
 argo.cpp: idriver.h
 	touch argo.cpp

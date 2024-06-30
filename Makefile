@@ -30,7 +30,7 @@ uninstall:
 .PHONY:
 	clean
 
-LIBOBJS = aes.o api.o channel.o cipher.o des.o digest.o driver.o hmac.o json.o logger.o md5.o path.o random.o sha.o socket.o udpchannel.o
+LIBOBJS = aes.o api.o channel.o cipher.o des.o digest.o driver.o hmac.o json.o logger.o md5.o path.o pbc2.o prng.o random.o sha.o socket.o udpchannel.o
 TESTOBJS = testargo.o
 APPOBJS = argo.o
 
@@ -81,6 +81,12 @@ md5.o: md5.cpp
 
 path.o: path.cpp
 	${LIBCC} path.cpp
+
+pbc2.o: pbc2.cpp
+	${LIBCC} pbc2.cpp
+
+prng.o: prng.cpp
+	${LIBCC} prng.cpp
 
 random.o: random.cpp
 	${LIBCC} random.cpp
@@ -135,6 +141,12 @@ md5.cpp: md5.h asn.h oid.h
 
 path.cpp: path.h
 	touch path.cpp
+
+pbc2.cpp: pbc2.h
+	touch pbc2.cpp
+
+prng.cpp: prng.h
+	touch prng.cpp
 
 random.cpp: random.h
 	touch random.cpp
@@ -192,6 +204,12 @@ md5.h: api.h digest.h
 
 path.h: api.h
 	touch path.h
+
+pbc2.h: api.h hmac.h prng.h
+	touch pbc2.h
+
+prng.h: api.h des.h random.h
+	touch prng.h
 
 random.h: api.h
 	touch random.h

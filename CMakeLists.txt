@@ -28,8 +28,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 set (LIB_SRCS
-    api.cpp
     aes.cpp
+    api.cpp
     channel.cpp
     cipher.cpp
     des.cpp
@@ -40,6 +40,8 @@ set (LIB_SRCS
     logger.cpp
     md5.cpp
     path.cpp
+    pbc2.cpp
+    prng.cpp
     random.cpp
     sha.cpp
     socket.cpp
